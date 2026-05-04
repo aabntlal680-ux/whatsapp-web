@@ -1,0 +1,8 @@
+uploads = []
+outputs = []
+
+[[generated]]
+id = "T_9ymG5XGuACaXTNSD4dX"
+uri = "file://artifacts/mobile/assets/images/icon.png"
+type = "image"
+title = "whatsapp business icon"
