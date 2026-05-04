@@ -1,4 +1,5 @@
 import { Feather } from "@expo/vector-icons";
+import { router } from "expo-router";
 import React, { useState } from "react";
 import {
   FlatList,
@@ -7,6 +8,7 @@ import {
   StyleSheet,
   Text,
   TextInput,
+  TouchableOpacity,
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -39,7 +41,25 @@ export default function ConversationList({ style, onSelectContact, selectedConta
       <View style={[styles.header, { paddingTop: topPadding + 8 }]}>
         <View style={styles.headerTop}>
           <Text style={styles.headerTitle}>المحادثات</Text>
-          <AccountQualityBadge />
+          <View style={styles.headerActions}>
+            <AccountQualityBadge />
+            <TouchableOpacity
+              onPress={() => router.push("/settings")}
+              style={styles.iconBtn}
+              hitSlop={10}
+              activeOpacity={0.7}
+            >
+              <Feather name="settings" size={20} color="rgba(255,255,255,0.85)" />
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => router.push("/about")}
+              style={styles.iconBtn}
+              hitSlop={10}
+              activeOpacity={0.7}
+            >
+              <Feather name="info" size={20} color="rgba(255,255,255,0.85)" />
+            </TouchableOpacity>
+          </View>
         </View>
         <View style={styles.searchBox}>
           <Feather name="search" size={18} color="#667781" />
@@ -123,6 +143,19 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontFamily: "Inter_700Bold",
     color: "#FFFFFF",
+  },
+  headerActions: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  iconBtn: {
+    width: 34,
+    height: 34,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 17,
+    backgroundColor: "rgba(255,255,255,0.1)",
   },
   searchBox: {
     flexDirection: "row",

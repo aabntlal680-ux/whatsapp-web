@@ -53,19 +53,21 @@ export default function MainScreen() {
   if (isTablet) {
     return (
       <View style={styles.splitContainer}>
+        {/* LEFT: Active Chat panel */}
         <View style={styles.leftPanel}>
-          <ConversationList
-            onSelectContact={handleSelect}
-            selectedContactId={selectedContact?.id}
-          />
-        </View>
-        <View style={styles.divider} />
-        <View style={styles.rightPanel}>
           {selectedContact ? (
             <ChatPanel contact={selectedContact} />
           ) : (
             <EmptyChatPlaceholder />
           )}
+        </View>
+        <View style={styles.divider} />
+        {/* RIGHT: Conversation list */}
+        <View style={styles.rightPanel}>
+          <ConversationList
+            onSelectContact={handleSelect}
+            selectedContactId={selectedContact?.id}
+          />
         </View>
       </View>
     );
@@ -96,17 +98,17 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
   },
   leftPanel: {
-    width: 380,
-    borderRightWidth: 1,
-    borderRightColor: "#E9EDEF",
+    flex: 1,
+    backgroundColor: "#ECE5DD",
   },
   divider: {
     width: 1,
     backgroundColor: "#E9EDEF",
   },
   rightPanel: {
-    flex: 1,
-    backgroundColor: "#ECE5DD",
+    width: 380,
+    borderLeftWidth: 1,
+    borderLeftColor: "#E9EDEF",
   },
   emptyPlaceholder: {
     flex: 1,
