@@ -19,18 +19,21 @@ jobs:
     - name: Set up Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '22' 
+        node-version: '22'
 
     - name: Install pnpm
       uses: pnpm/action-setup@v4
       with:
         version: latest
 
-    # إضافة إعدادات لإصلاح خطأ Metadata و Resolution
-    - name: Install dependencies
+    - name: Clear pnpm cache and Install
       run: |
+        # تنظيف أي إعدادات سابقة وتحديد وضع الحلول الأعلى
         pnpm config set resolution-mode highest
-        pnpm install --no-frozen-lockfile --aggregate-output
+        # حذف الذاكرة التخزين المؤقت لضمان عدم سحب بيانات تالفة
+        pnpm store prune
+        # التثبيت مع تجاهل ملف القفل تماماً وبناء سجل جديد
+        pnpm install --no-frozen-lockfile --ignore-scripts --prefer-offline=false
 
     - name: Build project
       run: pnpm run build --if-present
