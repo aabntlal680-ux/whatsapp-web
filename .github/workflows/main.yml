@@ -16,25 +16,25 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    # رفع نسخة Node.js إلى 22 لتتوافق مع pnpm الحديث
     - name: Set up Node.js
       uses: actions/setup-node@v4
       with:
         node-version: '22' 
 
     - name: Install pnpm
-      uses: pnpm/action-setup@v4 # تحديث لنسخة v4 المتوافقة مع Node 22
+      uses: pnpm/action-setup@v4
       with:
         version: latest
 
+    # إضافة إعدادات لإصلاح خطأ Metadata و Resolution
     - name: Install dependencies
-      # استخدام --no-frozen-lockfile لتجاوز أي تعارضات في ملفات القفل
-      run: pnpm install --no-frozen-lockfile
+      run: |
+        pnpm config set resolution-mode highest
+        pnpm install --no-frozen-lockfile --aggregate-output
 
     - name: Build project
       run: pnpm run build --if-present
 
-    # رفع الملفات للحصول على رابط التنزيل
     - name: Upload Production Build
       uses: actions/upload-artifact@v4
       with:
