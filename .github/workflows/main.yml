@@ -22,7 +22,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22' # تم التحديث لتجنب خطأ node:sqlite
           cache: 'pnpm'
 
       - name: Install dependencies
@@ -31,9 +31,8 @@ jobs:
       - name: Build project
         run: pnpm build
 
-      # هذا الجزء هو المسؤول عن إظهار خيار التنزيل للملفات الناتجة
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: production-files
-          path: dist/ # أو المسار الذي تخرج فيه ملفات البناء الخاصة بمشروعك
+          path: dist/ # تأكد أن هذا هو مجلد المخرجات في مشروعك
