@@ -7,6 +7,7 @@ workflows:
       - name: Install dependencies
         script: npm install
       - name: Build Android APK
-        script: npx expo export:android
+        script: npx expo export --platform android
     artifacts:
+      - dist/**/*.apk
       - android/app/build/outputs/apk/**/*.apk
