@@ -6,15 +6,11 @@ workflows:
     scripts:
       - name: Install and Prebuild
         script: |
-          export NODE_OPTIONS=--openssl-legacy-provider
           npm install --legacy-peer-deps
-          # إضافة --no-install لمنع التوقف و yes للموافقة التلقائية
-          yes | npx expo prebuild --platform android
+          npx expo prebuild --platform android --non-interactive
       - name: Build Android APK
         script: |
-          export NODE_OPTIONS=--openssl-legacy-provider
           cd android
-          chmod +x gradlew
           ./gradlew assembleRelease
     artifacts:
       - android/app/build/outputs/apk/release/*.apk
