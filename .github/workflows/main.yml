@@ -1,4 +1,4 @@
-name: Build and Package Project
+name: Ultimate Build and Package
 
 on:
   push:
@@ -19,26 +19,31 @@ jobs:
     - name: Set up Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '20'
+        node-version: '22' # لضمان دعم كافة المكتبات الحديثة و sqlite
 
-    # نثبت pnpm كأداة فقط لتجنب خطأ "pnpm not found" لاحقاً
     - name: Install pnpm
-      run: npm install -g pnpm
+      uses: pnpm/action-setup@v4
+      with:
+        version: latest
 
-    - name: Clean and Install with NPM
+    - name: Global Fix & Dependency Install
       run: |
-        # حذف ملفات القفل التي تسبب المشاكل
-        rm -f pnpm-lock.yaml
-        rm -f package-lock.json
-        # التثبيت باستخدام npm العادي (أكثر تسامحاً مع الأخطاء)
-        npm install --force
+        # 1. إعداد pnpm ليتخطى أخطاء الـ Metadata التي واجهتنا في البداية
+        pnpm config set resolution-mode highest
+        
+        # 2. تنظيف الذاكرة المؤقتة لضمان جلب بيانات صحيحة
+        pnpm store prune
+        
+        # 3. التثبيت الشامل لكل المشاريع الفرعية (Recursive) 
+        # مع تجاهل ملف القفل التالف وتجاوز أخطاء الوقت
+        pnpm install --no-frozen-lockfile --prefer-offline=false
 
-    - name: Build project
-      # الآن سننفذ البناء، وإذا نادى المشروع pnpm سيجده موجوداً
-      run: npm run build --if-present
+    - name: Build Project
+      # تنفيذ البناء لكل الأجزاء داخل الـ Monorepo
+      run: pnpm run build --if-present
 
     - name: Upload Production Build
       uses: actions/upload-artifact@v4
       with:
-        name: WhatsApp-Project-Files
+        name: Complete-Project-Bundle
         path: .
