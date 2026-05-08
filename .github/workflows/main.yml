@@ -1,41 +1,38 @@
-name: CI/CD Pipeline
+name: Build and Package
 
 on:
   push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+    branches:
+      - main
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v4
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: latest
+    - name: Install pnpm
+      uses: pnpm/action-setup@v3
+      with:
+        version: 8
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 24
-          cache: 'pnpm'
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 24
+        cache: 'pnpm'
 
-      - name: Install dependencies
-        run: pnpm install --no-frozen-lockfile --ignore-scripts
+    - name: Install dependencies
+      run: pnpm install
 
-      - name: Build project
-        # أضفنا أمر يتجاهل أخطاء التايب سكريبت لكي يكتمل البناء رغم وجود أخطاء في الكود
-        run: |
-          pnpm run build --if-present || true
+    - name: Build project
+      run: pnpm run build --if-present
 
-      - name: Upload Build Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: production-files
-          path: .
-          retention-days: 5
+    # هذه الخطوة هي التي ستعطيك رابط التنزيل
+    - name: Upload Production Build
+      uses: actions/upload-artifact@v4
+      with:
+        name: production-files
+        path: ./      # هنا نحدد المجلد الذي نريد ضغطه (يمكنك تغييره لمجلد البناء مثل ./dist)
