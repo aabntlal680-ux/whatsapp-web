@@ -19,24 +19,17 @@ jobs:
     - name: Set up Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '22'
+        node-version: '20' # العودة لنسخة مستقرة
 
-    - name: Install pnpm
-      uses: pnpm/action-setup@v4
-      with:
-        version: latest
-
-    - name: Clear pnpm cache and Install
+    - name: Force Install Dependencies with NPM
       run: |
-        # تنظيف أي إعدادات سابقة وتحديد وضع الحلول الأعلى
-        pnpm config set resolution-mode highest
-        # حذف الذاكرة التخزين المؤقت لضمان عدم سحب بيانات تالفة
-        pnpm store prune
-        # التثبيت مع تجاهل ملف القفل تماماً وبناء سجل جديد
-        pnpm install --no-frozen-lockfile --ignore-scripts --prefer-offline=false
+        # حذف ملفات pnpm لكي لا يحدث تعارض
+        rm -f pnpm-lock.yaml
+        # التثبيت باستخدام npm مع إجبار النظام على التجاوز
+        npm install --force
 
     - name: Build project
-      run: pnpm run build --if-present
+      run: npm run build --if-present
 
     - name: Upload Production Build
       uses: actions/upload-artifact@v4
