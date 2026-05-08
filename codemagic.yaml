@@ -7,16 +7,22 @@ workflows:
       - name: Install and Fix Config
         script: |
           export NODE_OPTIONS=--openssl-legacy-provider
+          export CI=1
+          
+          # 1. تثبيت المكاتب الأساسية أولاً
           npm install --legacy-peer-deps
-          # إجبار التكوين على دعم أندرويد وتوليد المجلدات
-          npx expo prebuild --platform android --non-interactive --clean
+          
+          # 2. إجبار Expo على إنشاء ملفات الأندرويد بدون تثبيت مكاتب داخلية
+          npx expo prebuild --platform android --no-install
+          
+          # 3. تثبيت المكاتب التي أضافها Expo قسراً عبر npm
+          npm install --legacy-peer-deps
       - name: Build Android APK
         script: |
           export NODE_OPTIONS=--openssl-legacy-provider
+          export CI=1
           cd android
           chmod +x gradlew
-          # تنظيف وبناء إجباري
-          ./gradlew clean
-          ./gradlew assembleRelease --stacktrace
+          ./gradlew assembleRelease
     artifacts:
       - android/app/build/outputs/apk/release/*.apk
