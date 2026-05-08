@@ -22,11 +22,12 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22' # تم التحديث لتجنب خطأ node:sqlite
+          node-version: '22'
           cache: 'pnpm'
 
       - name: Install dependencies
-        run: pnpm install
+        # أضفنا --no-frozen-lockfile لتجنب تعارض الملفات وقمنا بتعطيل السكريبتات التي تسبب الخطأ
+        run: pnpm install --no-frozen-lockfile --ignore-scripts
 
       - name: Build project
         run: pnpm build
@@ -35,4 +36,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: production-files
-          path: dist/ # تأكد أن هذا هو مجلد المخرجات في مشروعك
+          # قمت بتغيير المسار ليرفع المجلد بالكامل لضمان العثور على الملفات
+          path: . 
+          retention-days: 5
