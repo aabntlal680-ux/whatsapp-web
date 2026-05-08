@@ -35,3 +35,4 @@ jobs:
             .next/
             out/
           if-no-files-found: warn
+# Force build
