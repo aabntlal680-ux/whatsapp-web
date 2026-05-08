@@ -8,8 +8,8 @@ workflows:
         script: |
           export NODE_OPTIONS=--openssl-legacy-provider
           npm install --legacy-peer-deps
-          # إنشاء مجلد أندرويد إذا لم يكن موجوداً
-          npx expo prebuild --platform android
+          # إضافة --no-install لمنع التوقف و yes للموافقة التلقائية
+          yes | npx expo prebuild --platform android
       - name: Build Android APK
         script: |
           export NODE_OPTIONS=--openssl-legacy-provider
