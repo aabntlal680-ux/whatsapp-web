@@ -1,45 +1,37 @@
 name: Production Build Fix
-
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20' # نسخة مستقرة لتقليل تعارضات المكتبات القديمة
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
 
-    - name: Install pnpm
-      uses: pnpm/action-setup@v2
-      with:
-        version: 8 # إصدار 8 أثبت استقراراً أكبر مع مشاريع React Native القديمة
+      - name: Clean and Install with NPM
+        run: |
+          rm -f pnpm-lock.yaml
+          npm install --legacy-peer-deps
 
-    - name: Surgical Dependency Install
-      run: |
-        # إلغاء صارم لأي قيود قديمة
-        pnpm config set verify-store-integrity false
-        pnpm config set strict-peer-dependencies false
-        
-        # التثبيت مع تجاهل أخطاء السجلات (Metadata) تماماً
-        # واستخدام خيار 'hoist' لضمان توفر الأدوات مثل vite في كل مكان
-        pnpm install --no-frozen-lockfile --shamefully-hoist --ignore-scripts
+      - name: Build project
+        run: |
+          npm run build --if-present
 
-    - name: Force Build All
-      run: |
-        # محاولة بناء كل المشاريع، وتجاوز أي مشروع يفشل لضمان استمرار العملية
-        pnpm run build --if-present || true
-
-    - name: Package & Release
-      uses: actions/upload-artifact@v4
-      with:
-        name: Final-Project-Package
-        path: .
+      - name: Upload Production Build
+        uses: actions/upload-artifact@v4
+        with:
+          name: alwaleed-foundation-files
+          path: |
+            dist/
+            build/
+            .next/
+            out/
+          if-no-files-found: warn
