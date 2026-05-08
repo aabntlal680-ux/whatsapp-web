@@ -19,21 +19,20 @@ jobs:
     - name: Set up Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '20'
+        node-version: '22' # الإصدار المطلوب لعمل pnpm الحديث بدون أخطاء sqlite
 
-    # تثبيت pnpm كأداة فقط وليس للتثبيت
     - name: Install pnpm
       uses: pnpm/action-setup@v4
       with:
         version: latest
 
-    - name: Force Install Dependencies with NPM
+    - name: Install dependencies
       run: |
-        rm -f pnpm-lock.yaml
-        npm install --force
+        # حل مشكلة الـ Metadata والـ Time field نهائياً
+        pnpm config set resolution-mode highest
+        pnpm install --no-frozen-lockfile
 
     - name: Build project
-      # الآن pnpm موجود، وسينفذ الأمر البرمجي بنجاح
       run: pnpm run build --if-present
 
     - name: Upload Production Build
