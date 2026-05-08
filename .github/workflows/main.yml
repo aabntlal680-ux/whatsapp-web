@@ -16,29 +16,27 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Install pnpm
-      uses: pnpm/action-setup@v3
-      with:
-        version: latest # استخدام أحدث إصدار لدعم ميزة Catalogs
-
+    # رفع نسخة Node.js إلى 22 لتتوافق مع pnpm الحديث
     - name: Set up Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '20'
-        cache: 'pnpm'
+        node-version: '22' 
+
+    - name: Install pnpm
+      uses: pnpm/action-setup@v4 # تحديث لنسخة v4 المتوافقة مع Node 22
+      with:
+        version: latest
 
     - name: Install dependencies
-      # استخدام --no-frozen-lockfile لتجاوز تعارضات ملف التثبيت إذا وجدت
+      # استخدام --no-frozen-lockfile لتجاوز أي تعارضات في ملفات القفل
       run: pnpm install --no-frozen-lockfile
 
     - name: Build project
       run: pnpm run build --if-present
 
-    # ميزة رفع الملفات والحصول على رابط تنزيل (Artifacts)
+    # رفع الملفات للحصول على رابط التنزيل
     - name: Upload Production Build
       uses: actions/upload-artifact@v4
       with:
         name: WhatsApp-Project-Files
-        path: . 
-        # ملاحظة: إذا كان مشروعك ينتج مجلد بناء مثل 'dist' أو 'build'
-        # يفضل تغيير المسار أعلاه ليكون المجلد الناتج فقط.
+        path: .
