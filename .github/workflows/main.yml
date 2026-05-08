@@ -19,21 +19,23 @@ jobs:
     - name: Set up Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '22' # الإصدار المطلوب لعمل pnpm الحديث بدون أخطاء sqlite
+        node-version: '20'
 
+    # نثبت pnpm كأداة فقط لتجنب خطأ "pnpm not found" لاحقاً
     - name: Install pnpm
-      uses: pnpm/action-setup@v4
-      with:
-        version: latest
+      run: npm install -g pnpm
 
-    - name: Install dependencies
+    - name: Clean and Install with NPM
       run: |
-        # حل مشكلة الـ Metadata والـ Time field نهائياً
-        pnpm config set resolution-mode highest
-        pnpm install --no-frozen-lockfile
+        # حذف ملفات القفل التي تسبب المشاكل
+        rm -f pnpm-lock.yaml
+        rm -f package-lock.json
+        # التثبيت باستخدام npm العادي (أكثر تسامحاً مع الأخطاء)
+        npm install --force
 
     - name: Build project
-      run: pnpm run build --if-present
+      # الآن سننفذ البناء، وإذا نادى المشروع pnpm سيجده موجوداً
+      run: npm run build --if-present
 
     - name: Upload Production Build
       uses: actions/upload-artifact@v4
