@@ -6,12 +6,15 @@ workflows:
     scripts:
       - name: Install and Prebuild
         script: |
+          export NODE_OPTIONS=--openssl-legacy-provider
           npm install --legacy-peer-deps
-          export CI=1
-          npx expo prebuild --platform android --install
+          # الحل النهائي لمشكلة التوقف:
+          npx expo prebuild --platform android --non-interactive
       - name: Build Android APK
         script: |
+          export NODE_OPTIONS=--openssl-legacy-provider
           cd android
+          chmod +x gradlew
           ./gradlew assembleRelease
     artifacts:
       - android/app/build/outputs/apk/release/*.apk
