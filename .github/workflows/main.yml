@@ -1,7 +1,10 @@
-name: Build and Package
+name: Build and Package Project
 
 on:
   push:
+    branches:
+      - main
+  pull_request:
     branches:
       - main
 
@@ -16,23 +19,26 @@ jobs:
     - name: Install pnpm
       uses: pnpm/action-setup@v3
       with:
-        version: 8
+        version: latest # استخدام أحدث إصدار لدعم ميزة Catalogs
 
     - name: Set up Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: 24
+        node-version: '20'
         cache: 'pnpm'
 
     - name: Install dependencies
-      run: pnpm install
+      # استخدام --no-frozen-lockfile لتجاوز تعارضات ملف التثبيت إذا وجدت
+      run: pnpm install --no-frozen-lockfile
 
     - name: Build project
       run: pnpm run build --if-present
 
-    # هذه الخطوة هي التي ستعطيك رابط التنزيل
+    # ميزة رفع الملفات والحصول على رابط تنزيل (Artifacts)
     - name: Upload Production Build
       uses: actions/upload-artifact@v4
       with:
-        name: production-files
-        path: ./      # هنا نحدد المجلد الذي نريد ضغطه (يمكنك تغييره لمجلد البناء مثل ./dist)
+        name: WhatsApp-Project-Files
+        path: . 
+        # ملاحظة: إذا كان مشروعك ينتج مجلد بناء مثل 'dist' أو 'build'
+        # يفضل تغيير المسار أعلاه ليكون المجلد الناتج فقط.
