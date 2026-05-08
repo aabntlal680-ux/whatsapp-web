@@ -4,13 +4,19 @@ workflows:
     max_build_duration: 60
     instance_type: mac_mini_m1
     scripts:
-      - name: Install Dependencies
-        script: npm install --legacy-peer-deps
-      - name: Build APK via Expo
+      - name: Install and Fix Config
         script: |
-          export CI=1
-          npx expo export --platform android
-          # هذا السطر سيقوم بتجميع الملفات في مجلد dist
+          export NODE_OPTIONS=--openssl-legacy-provider
+          npm install --legacy-peer-deps
+          # إجبار التكوين على دعم أندرويد وتوليد المجلدات
+          npx expo prebuild --platform android --non-interactive --clean
+      - name: Build Android APK
+        script: |
+          export NODE_OPTIONS=--openssl-legacy-provider
+          cd android
+          chmod +x gradlew
+          # تنظيف وبناء إجباري
+          ./gradlew clean
+          ./gradlew assembleRelease --stacktrace
     artifacts:
-      - dist/**/*
-      - build-output/*.apk
+      - android/app/build/outputs/apk/release/*.apk
