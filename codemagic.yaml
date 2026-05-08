@@ -7,7 +7,8 @@ workflows:
       - name: Install and Prebuild
         script: |
           npm install --legacy-peer-deps
-          npx expo prebuild --platform android --non-interactive
+          export CI=1
+          npx expo prebuild --platform android --install
       - name: Build Android APK
         script: |
           cd android
