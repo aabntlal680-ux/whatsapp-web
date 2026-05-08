@@ -5,9 +5,14 @@ workflows:
     instance_type: mac_mini_m1
     scripts:
       - name: Install dependencies
-        script: npm install
+        script: |
+          export NODE_OPTIONS=--openssl-legacy-provider
+          npm install --legacy-peer-deps
       - name: Build Android APK
-        script: npx expo export --platform android
+        script: |
+          export NODE_OPTIONS=--openssl-legacy-provider
+          npx expo export --platform android
+          cd android && ./gradlew assembleRelease
     artifacts:
       - dist/**/*.apk
       - android/app/build/outputs/apk/**/*.apk
