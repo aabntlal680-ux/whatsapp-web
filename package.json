@@ -15,7 +15,9 @@
     "typescript": "~5.2.2"
   },
   "dependencies": {
+    "body-parser": "^2.2.2",
     "expo": "~51.0.34",
+    "express": "^5.2.1",
     "react-native-webview": "^13.16.1"
   }
 }
