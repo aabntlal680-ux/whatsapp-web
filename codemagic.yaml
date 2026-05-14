@@ -4,30 +4,22 @@ workflows:
     max_build_duration: 60
     instance_type: mac_mini_m1
     scripts:
-      - name: 1. Deep Clean & Environment Setup
+      - name: Environment Setup
         script: |
-          # تثبيت pnpm
           npm install -g pnpm --force
-          
-          # حذف أي مخلفات سابقة قد تسبب خطأ الـ "null"
-          rm -rf node_modules
-          rm -rf android
-          
-          # تثبيت التبعيات بشكل نظيف تماماً
           pnpm install --no-frozen-lockfile
-      - name: 2. Force Expo Prebuild (Clean Slate)
+      - name: Wipe and Rebuild Android
         script: |
-          # إنشاء مجلد أندرويد من الصفر عبر Expo لضمان سلامة المسارات
+          # مسح شامل لضمان عدم وجود مسارات "null"
+          rm -rf android
+          rm -rf ~/.gradle/caches
+          # إعادة توليد الملفات نظيفة تماماً
           npx expo prebuild --platform android --clean --no-install
-          
-          # منح صلاحيات التنفيذ لـ Gradle
           chmod +x android/gradlew
-      - name: 3. Final Build Production APK
+      - name: Build APK
         script: |
           cd android
-          # تنظيف جرايدل الداخلي
-          ./gradlew clean
-          # تنفيذ البناء مع تجاهل الفحوصات التي تسبب توقف البناء (Lint)
-          ./gradlew assembleRelease -x lint --stacktrace
+          # استخدام فلاج لتجاهل إعدادات المشاريع المضمنة الخاطئة
+          ./gradlew assembleRelease -Dorg.gradle.project.composite=false -x lint
     artifacts:
       - android/app/build/outputs/apk/release/*.apk
