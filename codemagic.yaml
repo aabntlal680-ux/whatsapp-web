@@ -8,21 +8,29 @@ workflows:
         script: |
           export NODE_OPTIONS=--openssl-legacy-provider
           export CI=1
-          # تثبيت pnpm وتثبيت المكتبات مع تجاهل القيود
-          npm install -g pnpm --force
-          pnpm install --no-frozen-lockfile --resolution-mode=highest
+
+          # 1. تثبيت pnpm في الماكينة لتجاوز منع npm في ملف package.json
+          npm install -g pnpm
+
+          # 2. تثبيت المكاتب مع حل مشكلة ERR_PNPM_MISSING_TIME
+          pnpm install --no-frozen-lockfile
+
       - name: Install and Fix Config
         script: |
           export NODE_OPTIONS=--openssl-legacy-provider
           export CI=1
-          # إنشاء ملفات الأندرويد
+
+          # 3. إنشاء ملفات الأندرويد
           npx expo prebuild --platform android --no-install
+
       - name: Build Android APK
         script: |
           export NODE_OPTIONS=--openssl-legacy-provider
           export CI=1
           cd android
+          # إعطاء صلاحية التنفيذ لملف Gradle
           chmod +x gradlew
+          # بناء نسخة الـ APK
           ./gradlew assembleRelease
     artifacts:
       - android/app/build/outputs/apk/release/*.apk
