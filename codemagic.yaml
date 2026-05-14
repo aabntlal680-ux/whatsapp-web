@@ -10,29 +10,23 @@ workflows:
           pnpm install --no-frozen-lockfile
       - name: Build APK
         script: |
-          # 1. تجهيز المسارات
           export NODE_BINARY=$(which node)
-          
-          # 2. إنشاء مجلد الأندرويد من الصفر
           rm -rf android
           npx expo prebuild --platform android --no-install
           
-          # 3. تخصيص ملف settings.gradle (الحل الجذري للسطر 13 والسطر 2)
-          # سنقوم بمسح محتوى الملف تماماً وإعادة كتابته بأكواد مضمونة لا تعتمد على التخمين
+          # إعادة كتابة الملف بالترتيب الصحيح (pluginManagement أولاً)
           cat <<EOF > android/settings.gradle
-          rootProject.name = 'whatsapp-web'
-          
           pluginManagement {
               def nodeExecutable = "$NODE_BINARY"
               includeBuild(new File(["\$nodeExecutable", "--print", "require.resolve('@react-native/gradle-plugin/package.json')"].execute(null, rootDir).text.trim()).getParentFile().toString())
           }
           plugins { id("com.facebook.react.settings") }
           
+          rootProject.name = 'whatsapp-web'
           include ':app'
           includeBuild('../node_modules/@react-native/gradle-plugin')
           EOF
 
-          # 4. بدء البناء الفعلي
           cd android
           chmod +x gradlew
           ./gradlew assembleRelease --no-daemon -PnodeExecutable=$NODE_BINARY
