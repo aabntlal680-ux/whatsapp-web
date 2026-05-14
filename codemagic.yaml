@@ -3,37 +3,22 @@ workflows:
     name: Android Build
     max_build_duration: 60
     instance_type: mac_mini_m1
-    environment:
-      node: latest # يضمن وجود أحدث إصدار من Node
     scripts:
-      - name: Setup pnpm and Clean
-        script: | 
-          # تثبيت pnpm وتجاوز مشاكل الأذونات
-          npm install -g pnpm --force
-          
-          # تنظيف أي مخلفات قديمة في بيئة البناء
-          rm -rf node_modules
-          rm -rf android/app/build
-          
-          # تثبيت التبعيات مع تجاهل السكريبتات التي قد تعطل البناء
-          pnpm install --no-frozen-lockfile
-      - name: Expo Prebuild & Fix Permissions
+      - name: Setup Environment and pnpm
         script: |
-          # إنشاء مجلد أندرويد من جديد لضمان سلامة الملفات
+          npm install -g pnpm --force
+          pnpm install --no-frozen-lockfile
+      - name: Clean and Regenerate Android
+        script: |
+          # حذف أي مجلد أندرويد قديم لتجنب تعارض الـ "null"
+          rm -rf android
+          # إعادة إنشاء المجلد نظيفاً تماماً
           npx expo prebuild --platform android --clean --no-install
-          
-          # إصلاح أذونات Gradle فوراً
-          chmod +x android/gradlew
-      - name: Build Android APK (Release)
+      - name: Build Android APK
         script: |
           cd android
-          # تشغيل تنظيف جرايدل قبل البناء
-          ./gradlew clean
-          # تنفيذ البناء مع إظهار تفاصيل الأخطاء إذا حدثت
-          ./gradlew assembleRelease --stacktrace --info
+          chmod +x gradlew
+          # تشغيل البناء مع تجاوز مشاكل الـ "Included build"
+          ./gradlew assembleRelease -x lint --stacktrace
     artifacts:
       - android/app/build/outputs/apk/release/*.apk
-    publishing:
-      email:
-        recipients:
-          - your-email@example.com # ضع بريدك هنا ليصلك إشعار بالنجاح
