@@ -6,17 +6,23 @@ workflows:
     scripts:
       - name: Install pnpm and Dependencies
         script: |
+          # تثبيت pnpm وضمان وجوده في البيئة
           npm install -g pnpm --force
-          pnpm install
+          pnpm install --no-frozen-lockfile
       - name: Install and Fix Config
         script: |
+          # توليد ملفات الأندرويد
           npx expo prebuild --platform android --no-install
-          export PATH=$PATH:$(pwd)/node_modules/.bin
       - name: Build Android APK
         script: |
+          # حل مشكلة السطر 2 في settings.gradle عبر تعريف مسار Node
+          export PATH=$PATH:$(pwd)/node_modules/.bin
+          export NODE_BINARY=$(which node)
+          
           cd android
+          # تنظيف التخزين المؤقت لـ Gradle وتصحيح الصلاحيات
           chmod +x gradlew
+          ./gradlew clean
           ./gradlew assembleRelease
     artifacts:
       - android/app/build/outputs/apk/release/*.apk
-
