@@ -5,7 +5,7 @@ const app = express();
 app.use(bodyParser.json());
 
 // --- إعدادات واتساب (تم تحديثها من صفحة المطورين الخاصة بك) ---
-const ACCESS_TOKEN = "EAAVTNwaZB4N0BRQPSmaUHDJYP5lpyBKkltm8vvn4Xrb530YdVYslqZAG5hQhrrGBHTNC55NdTdNTIL5F4qRZBFfgGcZAQk6qlDhMaYtyNBLP0QlgUuyyY3Ik8AeWLVhy2tz38JBKOFUCKHVuy2Ba3gCvvWKdAuMSwpXC8ONHr8FUgzvBwvwK5AXHn5MCwrQ596CgFfeMvhVllyoyJvkcoqKLNCcd79DCIouvrThW8ZAhPKCQfVuZC5ZCXFqEAxBbC88JpPUzSt32cjbyiZCdgTHT";
+const ACCESS_TOKEN = "EAAVTNwaZB4N0BRT2srjqLzhUfEjZAEzTzr5Bbu4ntQ0o42zI7hNYDKRyWfeGyQYWd934ukcJsGQtUjxsjfYWlZBiGh024dX7us65xj9ALgOZAyt9oVBQAqEIOx51ZA3hwdDYlIU621c8jHUqkfVO5HaypC4msMQHkW1uN0LO0MgZB80yEFEAoyF3fy0ZBDLLe1lltx166fwrvMIrcaWlOI8ZC1zov6ZCcwpaV76A1f1RZBpo8HbRnikq4AZANXFnVwTPFGKsNZB8hdkTRk6bLLZCAHxdEkQZDZD";
 const PHONE_NUMBER_ID = "1091967034004383";
 const WABA_ID = "1491482905958799"; // معرف حساب واتساب للأعمال
 const VERIFY_TOKEN = "OMAR_WHATSAPP_TOKEN_2026"; // الكود السري للـ Webhook
