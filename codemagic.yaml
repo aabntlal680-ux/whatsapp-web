@@ -10,20 +10,24 @@ workflows:
           pnpm install --no-frozen-lockfile
       - name: Build APK
         script: |
-          # 1. تعريف المسارات
+          # 1. تجهيز المسارات
           NODE_PATH=$(which node)
           
-          # 2. بناء مجلد الأندرويد
+          # 2. إنشاء مجلد الأندرويد
           npx expo prebuild --platform android --no-install
           
-          # 3. إصلاح المسارات في settings.gradle (للسطر 2 والسطر 13)
+          # 3. تعديل المسار الأساسي لـ Node
           sed -i '' "s#node#$NODE_PATH#g" android/settings.gradle
           
-          # 4. الحل الجذري: إخبار Gradle بمكان المكتبة يدوياً لتجنب قيمة null
-          PLUGIN_PATH=$(pwd)/node_modules/@react-native/gradle-plugin
-          echo "includeBuild('$PLUGIN_PATH')" >> android/settings.gradle
+          # 4. (الحل النووي) نسخ مكتبة Gradle Plugin يدوياً لداخل المجلد
+          # لكي لا يضطر النظام للبحث عنها في node_modules المعقدة
+          mkdir -p android/gradle-plugin
+          cp -R node_modules/@react-native/gradle-plugin/* android/gradle-plugin/
+          
+          # 5. إخبار الملف باستخدام النسخة المحلية التي نسخناها للتو
+          echo "includeBuild('gradle-plugin')" >> android/settings.gradle
 
-          # 5. تشغيل البناء مع تمرير المسار كمعامل إضافي
+          # 6. التنفيذ النهائي
           cd android
           chmod +x gradlew
           ./gradlew assembleRelease --no-daemon -PnodeExecutable=$NODE_PATH
