@@ -10,16 +10,24 @@ workflows:
           pnpm install --no-frozen-lockfile
       - name: Build APK
         script: |
+          # 1. الحصول على المسار وتخزينه
           NODE_PATH=$(which node)
+          
+          # 2. ترك Expo يبني المجلد أولاً (سينتج ملفاً خاطئاً)
           npx expo prebuild --platform android --no-install
           
-          # تعديل مباشر باستخدام البحث والاستبدال البسيط جداً
-          sed -i '' "s/node/$NODE_PATH/g" android/settings.gradle
+          # 3. الآن "نحقن" المسار الصحيح باستخدام محدد '#' بدلاً من '/' لتجنب خطأ 'u'
+          # هذا سيغير كلمة node إلى المسار الحقيقي في السطر 13
+          sed -i '' "s#node#$NODE_PATH#g" android/settings.gradle
           
+          # 4. التأكد من أن السطر 13 أصبح يحتوي على المسار
+          grep "commandLine" android/settings.gradle
+          
+          # 5. تشغيل البناء مباشرة قبل أن يغير Expo رأيه
           cd android
           chmod +x gradlew
-          # إضافة علم لتجاهل أي تحديثات تلقائية للملفات
-          ./gradlew assembleRelease --no-daemon -PnodeExecutable=$NODE_PATH -x prepareKotlinBuildScriptModel
+          ./gradlew assembleRelease --no-daemon -PnodeExecutable=$NODE_PATH
+ 
 
     artifacts:
       - android/app/build/outputs/apk/release/*.apk
