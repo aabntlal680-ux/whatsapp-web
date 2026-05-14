@@ -18,4 +18,3 @@ android-workflow:
         ./gradlew assembleRelease
   artifacts:
     - android/app/build/outputs/apk/release/*.apk
-

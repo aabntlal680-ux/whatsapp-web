@@ -15,7 +15,8 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.alwaleed.newapp"
     },
     "android": {
       "package": "com.alwaleed.newapp",

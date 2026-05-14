@@ -6,6 +6,7 @@ export default function App() {
   // 1. الرابط الصحيح لواجهتك المخصصة (استخدم رابط Replit الخاص بك)
   const MY_CUSTOM_INTERFACE_URL =
     "https://whats-app-business-hub--aabntlal680.replit.app";
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
