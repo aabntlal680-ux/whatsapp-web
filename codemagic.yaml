@@ -10,15 +10,16 @@ workflows:
           pnpm install --no-frozen-lockfile
       - name: Clean and Regenerate Android
         script: |
-          # حذف أي مجلد أندرويد قديم لتجنب تعارض الـ "null"
+          # حذف أي ملفات قديمة قد تسبب تعارض "null"
           rm -rf android
-          # إعادة إنشاء المجلد نظيفاً تماماً
+          # إعادة إنشاء مشروع الأندرويد من الصفر
           npx expo prebuild --platform android --clean --no-install
       - name: Build Android APK
         script: |
           cd android
+          # حل مشكلة الـ null عن طريق التأكد من تهيئة الإعدادات
           chmod +x gradlew
-          # تشغيل البناء مع تجاوز مشاكل الـ "Included build"
+          ./gradlew clean
           ./gradlew assembleRelease -x lint --stacktrace
     artifacts:
       - android/app/build/outputs/apk/release/*.apk
