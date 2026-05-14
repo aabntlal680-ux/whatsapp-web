@@ -9,7 +9,7 @@ workflows:
       - name: Setup pnpm and Clean
         script: | 
           # تثبيت pnpm وتجاوز مشاكل الأذونات
-          npm install -g pnpm
+          npm install -g pnpm --force
           
           # تنظيف أي مخلفات قديمة في بيئة البناء
           rm -rf node_modules
