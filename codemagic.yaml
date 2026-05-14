@@ -27,11 +27,9 @@ workflows:
         script: |
           export NODE_OPTIONS=--openssl-legacy-provider
           export CI=1
-        # التأكد من وجود مسار node في البيئة
           export PATH=$PATH:$(pwd)/node_modules/.bin
           cd android
           chmod +x gradlew
-        # تشغيل البناء مع تنظيف الذاكرة المؤقتة
           ./gradlew clean
           ./gradlew assembleRelease
 
