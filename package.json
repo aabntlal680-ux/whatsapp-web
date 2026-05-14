@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
-    "postinstall": "mkdir -p android && echo 'pluginManagement {\n    def nodeExecutable = \"node\"\n    includeBuild(new File([nodeExecutable, \"--print\", \"require.resolve(\\\"@react-native/gradle-plugin/package.json\\\")\"].execute(null, rootDir).text.trim()).getParentFile().toString())\n}\nplugins { id(\"com.facebook.react.settings\") }\nrootProject.name = \"whatsapp-web\"\ninclude \":app\"\nincludeBuild(\"../node_modules/@react-native/gradle-plugin\")' > android/settings.gradle"
+    "postinstall": "mkdir -p android && echo 'pluginManagement {\n    def nodeExecutable = \"node\"\n    includeBuild(new File([nodeExecutable, \"--print\", \"require.resolve(\\\"@react-native/gradle-plugin/package.json\\\")\"].execute(null, rootDir).text.trim()).getParentFile().toString())\n}\nplugins { id(\"com.facebook.react.settings\") }\nrootProject.name = \"whatsapp-web\"\ninclude \":app\"\nincludeBuild(\"../node_modules/@react-native/gradle-plugin\")' > android/settings.gradle",
     "build": "expo build:android",
     "typecheck:libs": "tsc --build",
     "typecheck": "pnpm run typecheck:libs && pnpm -r --filter \"./artifacts/**\" --filter \"./scripts\" --if-present",
