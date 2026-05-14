@@ -15,12 +15,11 @@ workflows:
           # مسح أي بقايا لمجلد أندرويد ليعاد إنشاؤه نظيفاً
           rm -rf android
           npx expo prebuild --platform android --no-install
+          sed -i '' "s|commandLine(\"node\"|commandLine(\"$(which node)\"|g" android/settings.gradle 
       - name: Build APK
         script: |
           # تعريف مسار Node لضمان قراءة السطر 2 و 13 في Gradle
-          export NODE_BINARY=$(which node)
-          export REACT_NATIVE_NODE_INTERPRETER=$(which node)
-          
+          export NODE_BINARY=$(which node)   
           cd android
           chmod +x gradlew
           # البناء مع تنظيف الذاكرة المؤقتة لـ Gradle
