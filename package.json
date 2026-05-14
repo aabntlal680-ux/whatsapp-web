@@ -4,13 +4,14 @@
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
-    "preinstall": "sh -c 'rm -f package-lock.json yarn.lock; case \"$npm_config_user_agent\" in pnpm/*) ;; *) echo \"Use pnpm instead\" && exit 0 ;; esac'",
+    "postinstall": "echo 'rootProject.name = \"whatsapp-web\"' > android/settings.gradle",
     "build": "expo build:android",
     "typecheck:libs": "tsc --build",
     "typecheck": "pnpm run typecheck:libs && pnpm -r --filter \"./artifacts/**\" --filter \"./scripts\" --if-present",
     "android": "expo run:android",
     "ios": "expo run:ios"
   },
+
   "private": true,
   "devDependencies": {
     "prettier": "^3.8.1",
