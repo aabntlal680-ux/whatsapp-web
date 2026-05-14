@@ -8,30 +8,25 @@ workflows:
         script: |
           export NODE_OPTIONS=--openssl-legacy-provider
           export CI=1
-
-          # 1. تثبيت pnpm في الماكينة لتجاوز منع npm في ملف package.json
+          # 1. تثبيت pnpm وتجاوز منع npm
           npm install -g pnpm --force
-
-          # 2. تثبيت المكاتب مع حل مشكلة ERR_PNPM_MISSING_TIME
+          # 2. تثبيت المكاتب
           pnpm install --no-frozen-lockfile
-
       - name: Install and Fix Config
         script: |
           export NODE_OPTIONS=--openssl-legacy-provider
           export CI=1
-
-          # 3. إنشاء ملفات الأندرويد
+          # 3. إنشاء ملفات الأندرويد مع ربط المكتبات بشكل صحيح
           npx expo prebuild --platform android --no-install
-
       - name: Build Android APK
         script: |
           export NODE_OPTIONS=--openssl-legacy-provider
           export CI=1
+          # تأكد من إضافة مسار node_modules للبيئة
           export PATH=$PATH:$(pwd)/node_modules/.bin
           cd android
           chmod +x gradlew
           ./gradlew clean
           ./gradlew assembleRelease
-
     artifacts:
       - android/app/build/outputs/apk/release/*.apk
