@@ -10,30 +10,16 @@ workflows:
           pnpm install --no-frozen-lockfile
       - name: Build APK
         script: |
-          # 1. الحصول على مسار Node الحقيقي
           NODE_PATH=$(which node)
-          
-          # 2. إنشاء مجلد الأندرويد
-          rm -rf android
           npx expo prebuild --platform android --no-install
           
-          # 3. إعادة كتابة ملف settings.gradle بالكامل بمسارات ثابتة
-          cat <<EOF > android/settings.gradle
-          pluginManagement {
-              def nodeExecutable = "$NODE_PATH"
-              includeBuild(new File(["\$nodeExecutable", "--print", "require.resolve('@react-native/gradle-plugin/package.json')"].execute(null, rootDir).text.trim()).getParentFile().toString())
-          }
-          plugins { id("com.facebook.react.settings") }
+          # تعديل مباشر باستخدام البحث والاستبدال البسيط جداً
+          sed -i '' "s/node/$NODE_PATH/g" android/settings.gradle
           
-          rootProject.name = 'whatsapp-web'
-          include ':app'
-          includeBuild('../node_modules/@react-native/gradle-plugin')
-          EOF
-
-          # 4. تشغيل البناء
           cd android
           chmod +x gradlew
-          ./gradlew assembleRelease --no-daemon -PnodeExecutable=$NODE_PATH
+          # إضافة علم لتجاهل أي تحديثات تلقائية للملفات
+          ./gradlew assembleRelease --no-daemon -PnodeExecutable=$NODE_PATH -x prepareKotlinBuildScriptModel
 
     artifacts:
       - android/app/build/outputs/apk/release/*.apk
