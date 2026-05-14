@@ -7,18 +7,35 @@ workflows:
       - name: Install pnpm and Dependencies
         script: |
           npm install -g pnpm --force
-          # مسح المجلدات القديمة لضمان تطبيق إعدادات .npmrc الجديدة
-          rm -rf node_modules pnpm-lock.yaml
-          pnpm install --no-frozen-lockfile 
+          pnpm install --no-frozen-lockfile
       - name: Build APK
         script: |
-          # تعريف مسار Node لضمان قراءة السطر 2 و 13 في Gradle
+          # 1. تجهيز المسارات
           export NODE_BINARY=$(which node)
+          
+          # 2. إنشاء مجلد الأندرويد من الصفر
+          rm -rf android
           npx expo prebuild --platform android --no-install
-          sed -i '' "s|commandLine(\"node\"|commandLine(\"$NODE_BINARY\"|g" android/settings.gradle
+          
+          # 3. تخصيص ملف settings.gradle (الحل الجذري للسطر 13 والسطر 2)
+          # سنقوم بمسح محتوى الملف تماماً وإعادة كتابته بأكواد مضمونة لا تعتمد على التخمين
+          cat <<EOF > android/settings.gradle
+          rootProject.name = 'whatsapp-web'
+          
+          pluginManagement {
+              def nodeExecutable = "$NODE_BINARY"
+              includeBuild(new File(["\$nodeExecutable", "--print", "require.resolve('@react-native/gradle-plugin/package.json')"].execute(null, rootDir).text.trim()).getParentFile().toString())
+          }
+          plugins { id("com.facebook.react.settings") }
+          
+          include ':app'
+          includeBuild('../node_modules/@react-native/gradle-plugin')
+          EOF
+
+          # 4. بدء البناء الفعلي
           cd android
           chmod +x gradlew
-          # البناء مع تنظيف الذاكرة المؤقتة لـ Gradle
-          ./gradlew clean assembleRelease --no-daemon
+          ./gradlew assembleRelease --no-daemon -PnodeExecutable=$NODE_BINARY
+
     artifacts:
       - android/app/build/outputs/apk/release/*.apk
