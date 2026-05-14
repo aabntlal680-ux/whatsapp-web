@@ -9,7 +9,7 @@ workflows:
           export NODE_OPTIONS=--openssl-legacy-provider
           export CI=1
           # تثبيت pnpm وتثبيت المكتبات مع تجاهل القيود
-          npm install -g pnpm
+          npm install -g pnpm --force
           pnpm install --no-frozen-lockfile --resolution-mode=highest
       - name: Install and Fix Config
         script: |
