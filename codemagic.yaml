@@ -7,20 +7,23 @@ workflows:
       - name: Install pnpm and Dependencies
         script: |
           npm install -g pnpm --force
+          # مسح المجلدات القديمة لضمان تطبيق إعدادات .npmrc الجديدة
+          rm -rf node_modules pnpm-lock.yaml
           pnpm install --no-frozen-lockfile
       - name: Wipe and Rebuild Android
         script: |
-          # مسح مجلد الأندرويد القديم تماماً لتجنب خطأ الـ null
+          # مسح أي بقايا لمجلد أندرويد ليعاد إنشاؤه نظيفاً
           rm -rf android
-          # إعادة إنشاء المجلد نظيفاً
           npx expo prebuild --platform android --no-install
       - name: Build APK
         script: |
-          # تعريف مسار Node لـ Gradle
+          # تعريف مسار Node لضمان قراءة السطر 2 و 13 في Gradle
           export NODE_BINARY=$(which node)
+          export REACT_NATIVE_NODE_INTERPRETER=$(which node)
+          
           cd android
           chmod +x gradlew
-          # البناء مع تنظيف كامل للذاكرة المؤقتة
+          # البناء مع تنظيف الذاكرة المؤقتة لـ Gradle
           ./gradlew clean assembleRelease --no-daemon
     artifacts:
       - android/app/build/outputs/apk/release/*.apk
