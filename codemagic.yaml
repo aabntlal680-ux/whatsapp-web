@@ -9,17 +9,13 @@ workflows:
           npm install -g pnpm --force
           # مسح المجلدات القديمة لضمان تطبيق إعدادات .npmrc الجديدة
           rm -rf node_modules pnpm-lock.yaml
-          pnpm install --no-frozen-lockfile
-      - name: Wipe and Rebuild Android
-        script: |
-          # مسح أي بقايا لمجلد أندرويد ليعاد إنشاؤه نظيفاً
-          rm -rf android
-          npx expo prebuild --platform android --no-install
-          sed -i '' "s|commandLine(\"node\"|commandLine(\"$(which node)\"|g" android/settings.gradle 
+          pnpm install --no-frozen-lockfile 
       - name: Build APK
         script: |
           # تعريف مسار Node لضمان قراءة السطر 2 و 13 في Gradle
-          export NODE_BINARY=$(which node)   
+          export NODE_BINARY=$(which node)
+          npx expo prebuild --platform android --no-install
+          sed -i '' "s|commandLine(\"node\"|commandLine(\"$NODE_BINARY\"|g" android/settings.gradle
           cd android
           chmod +x gradlew
           # البناء مع تنظيف الذاكرة المؤقتة لـ Gradle
