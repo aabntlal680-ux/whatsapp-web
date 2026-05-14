@@ -5,7 +5,7 @@ import { WebView } from "react-native-webview";
 export default function App() {
   // 1. الرابط الصحيح لواجهتك المخصصة (استخدم رابط Replit الخاص بك)
   const MY_CUSTOM_INTERFACE_URL =
-    "https://4850-8115-79d46383e954-00-3u3t54jgmv7tj.expo.pike.replit.dev";
+    "https://whats-app-business-hub--aabntlal680.replit.app";
 
   return (
     <SafeAreaView style={styles.container}>
