@@ -10,7 +10,7 @@ workflows:
           export CI=1
 
           # 1. تثبيت pnpm في الماكينة لتجاوز منع npm في ملف package.json
-          npm install -g pnpm
+          npm install -g pnpm --force
 
           # 2. تثبيت المكاتب مع حل مشكلة ERR_PNPM_MISSING_TIME
           pnpm install --no-frozen-lockfile --resolution-mode=highest
