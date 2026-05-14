@@ -13,7 +13,7 @@ workflows:
           npm install -g pnpm --force
 
           # 2. تثبيت المكاتب مع حل مشكلة ERR_PNPM_MISSING_TIME
-          pnpm install --no-frozen-lockfile --resolution-mode=highest
+          pnpm install --no-frozen-lockfile
 
       - name: Install and Fix Config
         script: |
