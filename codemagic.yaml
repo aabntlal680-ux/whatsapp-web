@@ -19,10 +19,12 @@ workflows:
           export PATH=$PATH:$(pwd)/node_modules/.bin
           export NODE_BINARY=$(which node)
           
-          cd android
+          cd android && ./gradlew clean
           # تنظيف التخزين المؤقت لـ Gradle وتصحيح الصلاحيات
           chmod +x gradlew
           ./gradlew clean
           ./gradlew assembleRelease
+          ./gradlew assembleDebug --stacktrace --info
+
     artifacts:
       - android/app/build/outputs/apk/release/*.apk
