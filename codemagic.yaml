@@ -27,10 +27,13 @@ workflows:
         script: |
           export NODE_OPTIONS=--openssl-legacy-provider
           export CI=1
+        # التأكد من وجود مسار node في البيئة
+          export PATH=$PATH:$(pwd)/node_modules/.bin
           cd android
-          # إعطاء صلاحية التنفيذ لملف Gradle
           chmod +x gradlew
-          # بناء نسخة الـ APK
+        # تشغيل البناء مع تنظيف الذاكرة المؤقتة
+          ./gradlew clean
           ./gradlew assembleRelease
+
     artifacts:
       - android/app/build/outputs/apk/release/*.apk
