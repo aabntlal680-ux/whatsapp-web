@@ -1,4 +1,4 @@
-workflows:
+Workflows:
   android-workflow:
     name: Android Build
     max_build_duration: 60
@@ -25,9 +25,9 @@ workflows:
           # 5. حل مشكلة مسارات pnpm التالفة لـ Expo 54 ومنع خطأ expo-constants
           echo "module.exports = { reactNativePath: './node_modules/react-native' };" > react-native.config.js
           
-          # 6. إصلاح تعارض الـ SoftwareComponent لمكون الـ release في Gradle الحديث
+          # 6. إصلاح تعارض الكوتلن المتوافق مع Gradle 8.8 (الحل الجذري والآمن)
           if [ -f "android/build.gradle" ]; then
-            echo "allprojects { configurations.all { resolutionStrategy.dependencySubstitution { substitute module('org.jetbrains.kotlin:kotlin-compiler-embeddable') viaModule('org.jetbrains.kotlin:kotlin-compiler-embeddable:1.9.24') } } }" >> android/build.gradle
+            echo "allprojects { configurations.all { resolutionStrategy { force 'org.jetbrains.kotlin:kotlin-compiler-embeddable:1.9.24' } } }" >> android/build.gradle
           fi
           if [ -f "android/gradle.properties" ]; then
             echo "android.defaults.buildfeatures.buildconfig=true" >> android/gradle.properties
