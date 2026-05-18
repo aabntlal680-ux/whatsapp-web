@@ -6,25 +6,24 @@ workflows:
     scripts:
       - name: Install pnpm and Dependencies
         script: |
-          # 1. تثبيت pnpm وتثبيت الحزم بهيكلية مسارات حقيقية يراها أندرويد
           npm install -g pnpm --force
           pnpm install --no-frozen-lockfile --shamefully-hoist
       - name: Build APK
         script: |
-          # 2. تجهيز متغيرات البيئة ومسار النود الرسمي
+          # 1. تجهيز متغيرات البيئة ومسار النود الرسمي
           NODE_PATH=$(which node)
           export NODE_EXECUTABLE_PATH=$NODE_PATH
           
-          # 3. تنظيف أي بقايا بناء قديم لمنع تعليق السطر 13
+          # 2. تنظيف أي بقايا بناء قديم
           rm -rf android
           
-          # 4. إنشاء مجلد أندرويد نظيف كلياً متوافق مع الحزم المرفوعة
+          # 3. إنشاء مجلد أندرويد نظيف
           npx expo prebuild --platform android --no-install
           
-          # 5. تشغيل البناء النهائي وتمرير المسار مباشرة لـ Gradle
+          # 4. تشغيل البناء النهائي باستخدام أمر التجميع المتوافق لمنع خطأ الـ release property
           cd android
           chmod +x gradlew
-          ./gradlew assembleRelease --no-daemon -PnodeExecutable=$NODE_PATH
+          ./gradlew assemble -PbuildVariant=release --no-daemon -PnodeExecutable=$NODE_PATH
 
     artifacts:
       - android/app/build/outputs/apk/release/*.apk
