@@ -6,34 +6,36 @@ workflows:
     scripts:
       - name: Install pnpm and Dependencies
         script: |
-          # 1. تثبيت pnpm وتحديثه
+          # 1. تحديث وتثبيت أداة pnpm كخطوة أولى
           npm install -g pnpm --force
           
-          # 2. إجبار pnpm على التثبيت بالهيكلية المطلوبة وتخطي خطأ الـ HOIST_PATTERN_DIFF بالقوة
-          pnpm install --no-frozen-lockfile --shamefully-hoist --force
+          # 2. التدمير الكامل والنهائي لملفات الكاش القديمة على السيرفر لمنع خطأ الـ Hoist المزعج
+          rm -rf node_modules .pnpm-store pnpm-lock.yaml android
           
-          # 3. إضافة حزمة الـ gradle-plugin إلى جذر الـ Workspace
-          pnpm add expo-module-gradle-plugin --save-dev -w --force
+          # 3. تثبيت الحزم بالهيكلية المطلوبة لأندرويد بدون أي فحص مخلفات قديمة
+          pnpm install --no-frozen-lockfile --shamefully-hoist
+          
+          # 4. إضافة حزمة الـ gradle-plugin إلى جذر الـ Workspace بأمان
+          pnpm add expo-module-gradle-plugin --save-dev -w
       - name: Build APK
         script: |
-          # 4. تجهيز مسارات نود لـ Expo
+          # 5. تجهيز مسارات نود لـ Expo
           NODE_PATH=$(which node)
           export NODE_EXECUTABLE_PATH=$NODE_PATH
           
-          # 5. تنظيف وبناء مجلد أندرويد
-          rm -rf android
+          # 6. إنشاء مجلد أندرويد المستقر
           npx expo prebuild --platform android --no-install
           
-          # 6. ربط مكتبة الـ Gradle بملف الإعدادات
+          # 7. ربط مكتبة الـ Gradle بملف الإعدادات
           echo "includeBuild('node_modules/expo-module-gradle-plugin')" >> android/settings.gradle
 
-          # 7. تعديل ملف إكسبو الداخلي لحل مشكلة الـ release property
+          # 8. تعديل ملف إكسبو الداخلي لحل مشكلة الـ release property
           TARGET_FILE=$(find node_modules -name "ExpoModulesCorePlugin.gradle" | head -n 1)
           if [ -f "$TARGET_FILE" ]; then
             sed -i '' '/withVariants/d' "$TARGET_FILE" || sed -i '/withVariants/d' "$TARGET_FILE"
           fi
           
-          # 8. التجميع وبناء الـ APK
+          # 9. التجميع النهائي وبناء الـ APK
           cd android
           chmod +x gradlew
           ./gradlew assembleRelease --no-daemon -PnodeExecutable=$NODE_PATH
