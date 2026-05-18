@@ -1,4 +1,4 @@
-workflows:
+Workflows:
   android-workflow:
     name: Android Build
     max_build_duration: 60
@@ -22,10 +22,8 @@ workflows:
           rm -rf android
           npx expo prebuild --platform android --no-install
           
-          # 5. معالجة خطأ الـ null في ملف settings.gradle الناتج عن الـ prebuild فوراً
-          if [ -f "android/settings.gradle" ]; then
-            sed -i '' "s/includeBuild('.*null')//g" android/settings.gradle || sed -i "s/includeBuild('.*null')//g" android/settings.gradle
-          fi
+          # 5. حل مشكلة مسارات pnpm التالفة لـ Expo 54 ومنع خطأ expo-constants
+          echo "module.exports = { reactNativePath: './node_modules/react-native' };" > react-native.config.js
           
           # 6. تشغيل البناء النهائي المستقر والتجميع
           cd android
