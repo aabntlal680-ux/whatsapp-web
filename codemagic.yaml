@@ -6,22 +6,23 @@ workflows:
     scripts:
       - name: Install pnpm and Dependencies
         script: |
+          # 1. تثبيت pnpm بالقوة وتفريغ الكاش التالف تماماً لمنع خطأ الـ HOIST DIFF
           npm install -g pnpm --force
-          pnpm install --no-frozen-lockfile --shamefully-hoist
+          rm -rf node_modules .pnpm-store pnpm-lock.yaml
           
-          # إجبار النظام على تحديث حزم إكسبو الأساسية للنسخة المتوافقة والمصلحة تلقائياً
-          pnpm update expo-modules-core --latest
+          # 2. التثبيت النظيف بالهيكلية المسطحة الحقيقية التي يطلبها أندرويد
+          pnpm install --no-frozen-lockfile --shamefully-hoist
       - name: Build APK
         script: |
-          # 1. تجهيز متغيرات البيئة ومسار Node
+          # 3. تجهيز متغيرات البيئة ومسار نود
           NODE_PATH=$(which node)
           export NODE_EXECUTABLE_PATH=$NODE_PATH
           
-          # 2. تنظيف وإعادة بناء مجلد أندرويد بالكامل بناءً على التحديث الجديد
+          # 4. تنظيف وإعادة بناء مجلد أندرويد
           rm -rf android
           npx expo prebuild --platform android --no-install
           
-          # 3. تنفيذ البناء الرسمي المستقر للأندرويد
+          # 5. تشغيل البناء النهائي المستقر والتجميع
           cd android
           chmod +x gradlew
           ./gradlew assembleRelease --no-daemon -PnodeExecutable=$NODE_PATH
