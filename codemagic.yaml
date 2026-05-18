@@ -6,44 +6,23 @@ workflows:
     scripts:
       - name: Install pnpm and Dependencies
         script: |
-          # 1. تثبيت أداة pnpm
+          # 1. تثبيت pnpm بالقوة وتفريغ الكاش التالف تماماً لمنع خطأ الـ HOIST DIFF
           npm install -g pnpm --force
+          rm -rf node_modules .pnpm-store pnpm-lock.yaml
           
-          # 2. مسح ملفات الكاش والمجلدات محلياً
-          rm -rf node_modules .pnpm-store pnpm-lock.yaml android
-          
-          # 3. إعداد خيار الـ hoist داخل ملف .npmrc لفرض الإعدادات
-          echo "public-hoist-pattern[]=*react*" > .npmrc
-          echo "shamefully-hoist=true" >> .npmrc
-          
-          # 4. تشغيل التثبيت النظيف والمستقر
-          pnpm install --no-frozen-lockfile
-          
-          # 5. إضافة حزمة الـ gradle-plugin إلى جذر الـ Workspace
-          pnpm add expo-module-gradle-plugin --save-dev -w
+          # 2. التثبيت النظيف بالهيكلية المسطحة الحقيقية التي يطلبها أندرويد
+          pnpm install --no-frozen-lockfile --shamefully-hoist
       - name: Build APK
         script: |
-          # 6. تجهيز مسارات نود لـ Expo
+          # 3. تجهيز متغيرات البيئة ومسار نود
           NODE_PATH=$(which node)
           export NODE_EXECUTABLE_PATH=$NODE_PATH
           
-          # 7. إنشاء مجلد أندرويد تلقائياً
+          # 4. تنظيف وإعادة بناء مجلد أندرويد
+          rm -rf android
           npx expo prebuild --platform android --no-install
           
-          # 8. [تعديل جبري صامت] مسح السطر التالف الذي يبحث عن المكتبة ويعيد قيمة null
-          sed -i '' "/com.facebook.react.settings/d" android/settings.gradle || sed -i "/com.facebook.react.settings/d" android/settings.gradle
-          
-          # 9. [تعديل جبري صامت] حقن المسارات الحقيقية للإضافات مباشرة وبدون الاستعانة بدوال Expo التالفة
-          echo "includeBuild('node_modules/expo-module-gradle-plugin')" >> android/settings.gradle
-          echo "includeBuild('node_modules/@react-native/gradle-plugin')" >> android/settings.gradle
-
-          # 10. تعديل ملف إكسبو الداخلي لحل مشكلة الـ release property لـ SoftwareComponent
-          TARGET_FILE=$(find node_modules -name "ExpoModulesCorePlugin.gradle" | head -n 1)
-          if [ -f "$TARGET_FILE" ]; then
-            sed -i '' '/withVariants/d' "$TARGET_FILE" || sed -i '/withVariants/d' "$TARGET_FILE"
-          fi
-          
-          # 11. التجميع النهائي وبناء الـ APK قسرياً
+          # 5. تشغيل البناء النهائي المستقر والتجميع
           cd android
           chmod +x gradlew
           ./gradlew assembleRelease --no-daemon -PnodeExecutable=$NODE_PATH
