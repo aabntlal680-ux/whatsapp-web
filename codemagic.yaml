@@ -4,38 +4,40 @@ workflows:
     max_build_duration: 60
     instance_type: mac_mini_m1
     scripts:
+      - name: Clean Cache and Workspace
+        script: |
+          # 1. خطوة حاسمة ومنفصلة لتنظيف الذاكرة والمجلدات السابقة تماماً
+          rm -rf node_modules .pnpm-store pnpm-lock.yaml android
       - name: Install pnpm and Dependencies
         script: |
-          # 1. تثبيت pnpm وتنظيف الكاش والمجلدات القديمة تماماً لمنع خطأ الـ HOIST DIFF
+          # 2. تثبيت pnpm بأحدث إصدار مستقر
           npm install -g pnpm --force
-          rm -rf node_modules .pnpm-store pnpm-lock.yaml
           
-          # 2. التثبيت النظيف بالهيكلية المسطحة المناسبة لأندرويد
+          # 3. التثبيت الفعلي بالهيكلية المطلوبة لأندرويد
           pnpm install --no-frozen-lockfile --shamefully-hoist
           
-          # 3. تثبيت إضافة الـ gradle-plugin في جذر الـ Workspace بشكل صحيح باستخدام خيار -w
+          # 4. إضافة مكتبة الـ gradle-plugin إلى جذر المشروع مع خيار الـ Workspace
           pnpm add expo-module-gradle-plugin --save-dev -w
       - name: Build APK
         script: |
-          # 4. تجهيز متغيرات البيئة ومسار نود لـ Expo
+          # 5. تجهيز مسارات Node الخاصة بـ Expo
           NODE_PATH=$(which node)
           export NODE_EXECUTABLE_PATH=$NODE_PATH
           
-          # 5. تنظيف وبناء مجلد أندرويد من الصفر
-          rm -rf android
+          # 6. إنشاء مجلد أندرويد النظيف
           npx expo prebuild --platform android --no-install
           
-          # 6. ربط مجلد الإضافة بملف الإعدادات
+          # 7. ربط مكتبة الـ Gradle المضافة بملف الإعدادات
           echo "includeBuild('node_modules/expo-module-gradle-plugin')" >> android/settings.gradle
 
-          # 7. قص السطر 85 التالف من ملف إكسبو الداخلي لمنع تعليقة الـ release property
+          # 8. معالجة وتعديل ملف إكسبو الداخلي لحل مشكلة الـ release property
           TARGET_FILE=$(find node_modules -name "ExpoModulesCorePlugin.gradle" | head -n 1)
           if [ -f "$TARGET_FILE" ]; then
             echo "Fixing Expo Component issue in: $TARGET_FILE"
             sed -i '' '/withVariants/d' "$TARGET_FILE" || sed -i '/withVariants/d' "$TARGET_FILE"
           fi
           
-          # 8. تشغيل البناء والتجميع النهائي المستقر
+          # 9. البدء الفوري في التجميع وبناء الـ APK
           cd android
           chmod +x gradlew
           ./gradlew assembleRelease --no-daemon -PnodeExecutable=$NODE_PATH
