@@ -10,20 +10,25 @@ workflows:
           pnpm install --no-frozen-lockfile --shamefully-hoist
       - name: Build APK
         script: |
-          # 1. تجهيز متغيرات البيئة ومسار النود الرسمي
+          # 1. تجهيز متغيرات البيئة ومسار Node
           NODE_PATH=$(which node)
           export NODE_EXECUTABLE_PATH=$NODE_PATH
           
-          # 2. تنظيف أي بقايا بناء قديم
+          # 2. تنظيف المشروع وبناء مجلد أندرويد جديد
           rm -rf android
-          
-          # 3. إنشاء مجلد أندرويد نظيف
           npx expo prebuild --platform android --no-install
           
-          # 4. تشغيل البناء النهائي باستخدام أمر التجميع المتوافق لمنع خطأ الـ release property
+          # 3. تعطيل كود المكونات التالف في مكتبة Expo لمنع خطأ الـ SoftwareComponent
+          EXPO_PLUGIN_FILE="node_modules/expo-modules-core/android/ExpoModulesCorePlugin.gradle"
+          if [ -f "$EXPO_PLUGIN_FILE" ]; then
+            echo "Fixing ExpoModulesCorePlugin.gradle components issue..."
+            sed -i '' '/withVariants/d' "$EXPO_PLUGIN_FILE" || sed -i '/withVariants/d' "$EXPO_PLUGIN_FILE"
+          fi
+          
+          # 4. تنفيذ البناء الرسمي المستقر للأندرويد
           cd android
           chmod +x gradlew
-          ./gradlew assemble -PbuildVariant=release --no-daemon -PnodeExecutable=$NODE_PATH
+          ./gradlew assembleRelease --no-daemon -PnodeExecutable=$NODE_PATH
 
     artifacts:
       - android/app/build/outputs/apk/release/*.apk
