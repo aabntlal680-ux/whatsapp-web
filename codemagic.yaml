@@ -12,7 +12,7 @@ workflows:
           # 2. مسح ملفات الكاش والمجلدات محلياً
           rm -rf node_modules .pnpm-store pnpm-lock.yaml android
           
-          # 3. إعداد خيار الـ hoist داخل ملف .npmrc لفرض الإعدادات قبل فحص pnpm
+          # 3. إعداد خيار الـ hoist داخل ملف .npmrc لفرض الإعدادات
           echo "public-hoist-pattern[]=*react*" > .npmrc
           echo "shamefully-hoist=true" >> .npmrc
           
@@ -27,19 +27,23 @@ workflows:
           NODE_PATH=$(which node)
           export NODE_EXECUTABLE_PATH=$NODE_PATH
           
-          # 7. إنشاء مجلد أندرويد
+          # 7. إنشاء مجلد أندرويد تلقائياً
           npx expo prebuild --platform android --no-install
           
-          # 8. ربط مكتبة الـ Gradle بملف الإعدادات
+          # 8. [تعديل جبري صامت] مسح السطر التالف الذي يبحث عن المكتبة ويعيد قيمة null
+          sed -i '' "/com.facebook.react.settings/d" android/settings.gradle || sed -i "/com.facebook.react.settings/d" android/settings.gradle
+          
+          # 9. [تعديل جبري صامت] حقن المسارات الحقيقية للإضافات مباشرة وبدون الاستعانة بدوال Expo التالفة
           echo "includeBuild('node_modules/expo-module-gradle-plugin')" >> android/settings.gradle
+          echo "includeBuild('node_modules/@react-native/gradle-plugin')" >> android/settings.gradle
 
-          # 9. تعديل ملف إكسبو الداخلي لحل مشكلة الـ release property
+          # 10. تعديل ملف إكسبو الداخلي لحل مشكلة الـ release property لـ SoftwareComponent
           TARGET_FILE=$(find node_modules -name "ExpoModulesCorePlugin.gradle" | head -n 1)
           if [ -f "$TARGET_FILE" ]; then
             sed -i '' '/withVariants/d' "$TARGET_FILE" || sed -i '/withVariants/d' "$TARGET_FILE"
           fi
           
-          # 10. التجميع النهائي وبناء الـ APK
+          # 11. التجميع النهائي وبناء الـ APK قسرياً
           cd android
           chmod +x gradlew
           ./gradlew assembleRelease --no-daemon -PnodeExecutable=$NODE_PATH
