@@ -3,19 +3,21 @@ workflows:
     name: Android Build
     max_build_duration: 60
     instance_type: mac_mini_m1
+    cache:
+      cache_paths: [] # تعطيل الكاش نهائياً لمنع خطأ الـ Hoist التالف
     scripts:
       - name: Install pnpm and Dependencies
         script: |
-          # 1. تحديث وتثبيت أداة pnpm كخطوة أولى
+          # 1. تثبيت pnpm وتحديثه
           npm install -g pnpm --force
           
-          # 2. التدمير الكامل والنهائي لملفات الكاش القديمة على السيرفر لمنع خطأ الـ Hoist المزعج
+          # 2. مسح جذري وشامل للمجلدات الحالية على السيرفر
           rm -rf node_modules .pnpm-store pnpm-lock.yaml android
           
-          # 3. تثبيت الحزم بالهيكلية المطلوبة لأندرويد بدون أي فحص مخلفات قديمة
+          # 3. التثبيت النظيف بالهيكلية المسطحة المطلوبة لأندرويد
           pnpm install --no-frozen-lockfile --shamefully-hoist
           
-          # 4. إضافة حزمة الـ gradle-plugin إلى جذر الـ Workspace بأمان
+          # 4. إضافة حزمة الـ gradle-plugin إلى جذر الـ Workspace
           pnpm add expo-module-gradle-plugin --save-dev -w
       - name: Build APK
         script: |
@@ -23,7 +25,7 @@ workflows:
           NODE_PATH=$(which node)
           export NODE_EXECUTABLE_PATH=$NODE_PATH
           
-          # 6. إنشاء مجلد أندرويد المستقر
+          # 6. إنشاء مجلد أندرويد النظيف
           npx expo prebuild --platform android --no-install
           
           # 7. ربط مكتبة الـ Gradle بملف الإعدادات
