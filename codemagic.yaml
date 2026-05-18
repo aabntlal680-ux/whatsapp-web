@@ -6,23 +6,31 @@ workflows:
     scripts:
       - name: Install pnpm and Dependencies
         script: |
-          # 1. تثبيت pnpm بالقوة وتفريغ الكاش التالف تماماً لمنع خطأ الـ HOIST DIFF
           npm install -g pnpm --force
           rm -rf node_modules .pnpm-store pnpm-lock.yaml
-          
-          # 2. التثبيت النظيف بالهيكلية المسطحة الحقيقية التي يطلبها أندرويد
           pnpm install --no-frozen-lockfile --shamefully-hoist
       - name: Build APK
         script: |
-          # 3. تجهيز متغيرات البيئة ومسار نود
+          # 1. تجهيز متغيرات البيئة ومسار نود لـ Expo
           NODE_PATH=$(which node)
           export NODE_EXECUTABLE_PATH=$NODE_PATH
           
-          # 4. تنظيف وإعادة بناء مجلد أندرويد
+          # 2. تنظيف وبناء مجلد أندرويد من الصفر
           rm -rf android
           npx expo prebuild --platform android --no-install
           
-          # 5. تشغيل البناء النهائي المستقر والتجميع
+          # 3. [حل الخطأ الأول والأساسي] - إجبار أندرويد على رؤية مكتبات الـ expo المخفية
+          EXPO_CORE_DIR=$(dirname $(find node_modules -name "ExpoModulesCorePlugin.gradle" | head -n 1))
+          echo "includeBuild('$EXPO_CORE_DIR/../../expo-module-gradle-plugin')" >> android/settings.gradle
+
+          # 4. [حل الخطأ الثاني] - قص السطر 85 التالف من ملف إكسبو الداخلي لمنع تعليقة الـ release property
+          TARGET_FILE=$(find node_modules -name "ExpoModulesCorePlugin.gradle" | head -n 1)
+          if [ -f "$TARGET_FILE" ]; then
+            echo "Fixing Expo Component issue in: $TARGET_FILE"
+            sed -i '' '/withVariants/d' "$TARGET_FILE" || sed -i '/withVariants/d' "$TARGET_FILE"
+          fi
+          
+          # 5. تشغيل البناء والتجميع النهائي المستقر
           cd android
           chmod +x gradlew
           ./gradlew assembleRelease --no-daemon -PnodeExecutable=$NODE_PATH
