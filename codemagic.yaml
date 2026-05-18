@@ -6,25 +6,22 @@ workflows:
     scripts:
       - name: Install pnpm and Dependencies
         script: |
+          # 1. تثبيت pnpm وتثبيت الحزم بهيكلية مسارات حقيقية يراها أندرويد
           npm install -g pnpm --force
-          pnpm install --no-frozen-lockfile
+          pnpm install --no-frozen-lockfile --shamefully-hoist
       - name: Build APK
         script: |
-          # 1. تجهيز المسارات وتصدير متغير النود الرسمي لـ Expo
+          # 2. تجهيز متغيرات البيئة ومسار النود الرسمي
           NODE_PATH=$(which node)
           export NODE_EXECUTABLE_PATH=$NODE_PATH
           
-          # 2. إنشاء مجلد الأندرويد الأصلي والنظيف
+          # 3. تنظيف أي بقايا بناء قديم لمنع تعليق السطر 13
+          rm -rf android
+          
+          # 4. إنشاء مجلد أندرويد نظيف كلياً متوافق مع الحزم المرفوعة
           npx expo prebuild --platform android --no-install
           
-          # 3. نسخ مكتبة Gradle Plugin يدوياً لداخل المجلد
-          mkdir -p android/gradle-plugin
-          cp -R node_modules/@react-native/gradle-plugin/* android/gradle-plugin/
-          
-          # 4. إخبار الملف باستخدام النسخة المحلية التي نسخناها
-          echo "includeBuild('gradle-plugin')" >> android/settings.gradle
-
-          # 5. التنفيذ النهائي المباشر وتمرير المسار للـ Gradle
+          # 5. تشغيل البناء النهائي وتمرير المسار مباشرة لـ Gradle
           cd android
           chmod +x gradlew
           ./gradlew assembleRelease --no-daemon -PnodeExecutable=$NODE_PATH
