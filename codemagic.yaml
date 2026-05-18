@@ -9,6 +9,9 @@ workflows:
           npm install -g pnpm --force
           rm -rf node_modules .pnpm-store pnpm-lock.yaml
           pnpm install --no-frozen-lockfile --shamefully-hoist
+          
+          # إجبار pnpm على تثبيت إضافة الـ gradle-plugin بشكل مستقل ورئيسي لكي يراها أندرويد فوراً
+          pnpm add expo-module-gradle-plugin --save-dev
       - name: Build APK
         script: |
           # 1. تجهيز متغيرات البيئة ومسار نود لـ Expo
@@ -19,11 +22,10 @@ workflows:
           rm -rf android
           npx expo prebuild --platform android --no-install
           
-          # 3. [حل الخطأ الأول والأساسي] - إجبار أندرويد على رؤية مكتبات الـ expo المخفية
-          EXPO_CORE_DIR=$(dirname $(find node_modules -name "ExpoModulesCorePlugin.gradle" | head -n 1))
-          echo "includeBuild('$EXPO_CORE_DIR/../../expo-module-gradle-plugin')" >> android/settings.gradle
+          # 3. ربط المجلد المباشر المضمون بملف الإعدادات
+          echo "includeBuild('node_modules/expo-module-gradle-plugin')" >> android/settings.gradle
 
-          # 4. [حل الخطأ الثاني] - قص السطر 85 التالف من ملف إكسبو الداخلي لمنع تعليقة الـ release property
+          # 4. قص السطر 85 التالف من ملف إكسبو الداخلي لمنع تعليقة الـ release property
           TARGET_FILE=$(find node_modules -name "ExpoModulesCorePlugin.gradle" | head -n 1)
           if [ -f "$TARGET_FILE" ]; then
             echo "Fixing Expo Component issue in: $TARGET_FILE"
