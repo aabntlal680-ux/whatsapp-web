@@ -6,34 +6,36 @@ workflows:
     scripts:
       - name: Install pnpm and Dependencies
         script: |
-          # 1. تثبيت pnpm وتفريغ الكاش القديم تماماً
+          # 1. تثبيت pnpm وتنظيف الكاش والمجلدات القديمة تماماً لمنع خطأ الـ HOIST DIFF
           npm install -g pnpm --force
           rm -rf node_modules .pnpm-store pnpm-lock.yaml
+          
+          # 2. التثبيت النظيف بالهيكلية المسطحة المناسبة لأندرويد
           pnpm install --no-frozen-lockfile --shamefully-hoist
           
-          # 2. التثبيت في جذر الـ Workspace باستخدام خيار -w لحل خطأ ERR_PNPM_ADDING_TO_ROOT
+          # 3. تثبيت إضافة الـ gradle-plugin في جذر الـ Workspace بشكل صحيح باستخدام خيار -w
           pnpm add expo-module-gradle-plugin --save-dev -w
       - name: Build APK
         script: |
-          # 3. تجهيز متغيرات البيئة ومسار نود لـ Expo
+          # 4. تجهيز متغيرات البيئة ومسار نود لـ Expo
           NODE_PATH=$(which node)
           export NODE_EXECUTABLE_PATH=$NODE_PATH
           
-          # 4. تنظيف وبناء مجلد أندرويد من الصفر
+          # 5. تنظيف وبناء مجلد أندرويد من الصفر
           rm -rf android
           npx expo prebuild --platform android --no-install
           
-          # 5. ربط المجلد المباشر المضمون بملف الإعدادات
+          # 6. ربط مجلد الإضافة بملف الإعدادات
           echo "includeBuild('node_modules/expo-module-gradle-plugin')" >> android/settings.gradle
 
-          # 6. قص السطر 85 التالف من ملف إكسبو الداخلي لمنع تعليقة الـ release property
+          # 7. قص السطر 85 التالف من ملف إكسبو الداخلي لمنع تعليقة الـ release property
           TARGET_FILE=$(find node_modules -name "ExpoModulesCorePlugin.gradle" | head -n 1)
           if [ -f "$TARGET_FILE" ]; then
             echo "Fixing Expo Component issue in: $TARGET_FILE"
             sed -i '' '/withVariants/d' "$TARGET_FILE" || sed -i '/withVariants/d' "$TARGET_FILE"
           fi
           
-          # 7. تشغيل البناء والتجميع النهائي المستقر
+          # 8. تشغيل البناء والتجميع النهائي المستقر
           cd android
           chmod +x gradlew
           ./gradlew assembleRelease --no-daemon -PnodeExecutable=$NODE_PATH
