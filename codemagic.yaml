@@ -1,4 +1,4 @@
-workflows:
+Workflows:
   android-workflow:
     name: Android Build
     max_build_duration: 60
@@ -22,10 +22,20 @@ workflows:
           rm -rf android
           npx expo prebuild --platform android --no-install
           
-          # 5. تشغيل البناء النهائي المستقر والتجميع
+          # 5. إصلاح توافقية الملحقات ومكونات السوفتوير لـ Expo 54 و Gradle 8+
+          # إجبار Gradle على قراءة إعدادات الملحقات من المسار الصحيح وتخطي تعارض مكون الـ release
+          if [ -d "android" ]; then
+            echo "org.gradle.vfs.watch=false" >> android/gradle.properties
+            echo "android.defaults.buildfeatures.buildconfig=true" >> android/gradle.properties
+          fi
+          
+          # 6. تشغيل البناء النهائي المستقر والتجميع مع تمرير خصائص تخطي أخطاء المكونات
           cd android
           chmod +x gradlew
-          ./gradlew assembleRelease --no-daemon -PnodeExecutable=$NODE_PATH
+          ./gradlew assembleRelease --no-daemon \
+            -PnodeExecutable=$NODE_PATH \
+            -Pandroid.useAndroidX=true \
+            -Pandroid.enableJetifier=true
 
     artifacts:
       - android/app/build/outputs/apk/release/*.apk
