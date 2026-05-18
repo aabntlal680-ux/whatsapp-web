@@ -25,7 +25,15 @@ workflows:
           # 5. حل مشكلة مسارات pnpm التالفة لـ Expo 54 ومنع خطأ expo-constants
           echo "module.exports = { reactNativePath: './node_modules/react-native' };" > react-native.config.js
           
-          # 6. تشغيل البناء النهائي المستقر والتجميع
+          # 6. إصلاح تعارض الـ SoftwareComponent لمكون الـ release في Gradle الحديث
+          if [ -f "android/build.gradle" ]; then
+            echo "allprojects { configurations.all { resolutionStrategy.dependencySubstitution { substitute module('org.jetbrains.kotlin:kotlin-compiler-embeddable') viaModule('org.jetbrains.kotlin:kotlin-compiler-embeddable:1.9.24') } } }" >> android/build.gradle
+          fi
+          if [ -f "android/gradle.properties" ]; then
+            echo "android.defaults.buildfeatures.buildconfig=true" >> android/gradle.properties
+          fi
+
+          # 7. تشغيل البناء النهائي المستقر والتجميع
           cd android
           chmod +x gradlew
           ./gradlew assembleRelease --no-daemon -PnodeExecutable=$NODE_PATH
