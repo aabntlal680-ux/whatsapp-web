@@ -18,6 +18,10 @@ workflows:
 
           npm install --legacy-peer-deps
 
+      - name: Verify RN Gradle Plugin
+        script: |
+          ls node_modules/@react-native/gradle-plugin
+
       - name: Build APK
         script: |
           cd android
