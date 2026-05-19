@@ -3,25 +3,19 @@
   "version": "1.0.0",
   "private": true,
   "main": "node_modules/expo/AppEntry.js",
+
   "scripts": {
     "start": "expo start",
-    "android": "expo run:android",
-    "ios": "expo run:ios",
-    "web": "expo start --web",
-    "prebuild": "expo prebuild",
-    "lint": "expo lint"
+    "android": "expo run:android"
   },
+
   "dependencies": {
-    "expo": "^54.0.0",
-    "expo-status-bar": "~3.0.8",
+    "expo": "~54.0.0",
     "react": "19.1.0",
     "react-native": "0.81.0"
   },
+
   "devDependencies": {
-    "@babel/core": "^7.25.2",
-    "@react-native/gradle-plugin": "0.81.0"
-  },
-  "engines": {
-    "node": ">=18"
+    "@babel/core": "^7.25.2"
   }
 }
