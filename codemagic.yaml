@@ -22,14 +22,15 @@ workflows:
           rm -rf android
           npx expo prebuild --platform android --no-install
           
-          # 5. إصلاح جذري لملفات expo-modules-core المتواجدة داخل كاش pnpm (السطر 85 و خطأ الملحق)
-          # نقوم بتعديل صياغة الـ release برمجياً داخل حزمة الـ node_modules الأساسية قبل بدء Gradle
-          TARGET_FILE=$(find node_modules/.pnpm -name "ExpoModulesCorePlugin.gradle" 2>/dev/null | head -n 1)
-          if [ -not -z "$TARGET_FILE" ]; then
-            sed -i '' 's/components.release/components.findByName("release")/g' "$TARGET_FILE" 2>/dev/null || sed -i 's/components.release/components.findByName("release")/g' "$TARGET_FILE"
-          fi
+          # 5. حل مشكلة مسارات pnpm لـ Expo 54 ومنع خطأ expo-constants
+          echo "module.exports = { reactNativePath: './node_modules/react-native' };" > react-native.config.js
           
-          # 6. تشغيل البناء المستقر عبر تنفيذ تجميع الحزم المتوافقة
+          # 6. التعديل المتوافق مع الماك لإصلاح السطر 85 وحل تعارض ربط الحزم في Gradle 8.8
+          # هذا الأمر يبحث بدقة داخل مجلد الـ pnpm المخفي ويصلح الاستدعاءات برمجياً ليتعرف عليها Gradle
+          find node_modules/.pnpm -name "ExpoModulesCorePlugin.gradle" -exec sed -i '' 's/components.release/components.findByName("release")/g' {} + 2>/dev/null || true
+          find node_modules/.pnpm -name "build.gradle" -path "*/expo-constants/*" -exec sed -i '' 's/id: '"'"'expo-module-gradle-plugin'"'"'/id "expo-module-gradle-plugin" version "1.0.0"/g' {} + 2>/dev/null || true
+
+          # 7. تشغيل البناء النهائي المستقر والتجميع
           cd android
           chmod +x gradlew
           ./gradlew assembleRelease --no-daemon -PnodeExecutable=$NODE_PATH
