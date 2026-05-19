@@ -9,8 +9,6 @@ buildscript {
 
         ndkVersion = "26.1.10909125"
         kotlinVersion = "1.9.23"
-
-        reactNativeGradlePluginVersion = "0.81.0"
     }
 
     repositories {
@@ -20,14 +18,7 @@ buildscript {
 
     dependencies {
         classpath("com.android.tools.build:gradle:8.5.2")
-
-        classpath(
-            "com.facebook.react:react-native-gradle-plugin:$reactNativeGradlePluginVersion"
-        )
-
-        classpath(
-            "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
-        )
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
     }
 }
 
@@ -38,7 +29,6 @@ allprojects {
 
         google()
         mavenCentral()
-
         maven { url 'https://www.jitpack.io' }
 
         maven {
