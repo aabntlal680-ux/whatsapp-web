@@ -22,15 +22,14 @@ workflows:
           rm -rf android
           npx expo prebuild --platform android --no-install
           
-          # 5. حل مشكلة مسارات pnpm التالفة لـ Expo 54 ومنع خطأ expo-constants
+          # 5. حل مشكلة مسارات pnpm لـ Expo 54 ومنع خطأ expo-constants
           echo "module.exports = { reactNativePath: './node_modules/react-native' };" > react-native.config.js
           
-          # 6. إصلاح تعارض الكوتلن المتوافق مع Gradle 8.8 (الحل الجذري والآمن)
-          if [ -f "android/build.gradle" ]; then
-            echo "allprojects { configurations.all { resolutionStrategy { force 'org.jetbrains.kotlin:kotlin-compiler-embeddable:1.9.24' } } }" >> android/build.gradle
-          fi
-          if [ -f "android/gradle.properties" ]; then
+          # 6. حل جذري لخطأ السطر 85 (تعارض مكون الـ release في Gradle 8.8)
+          # نقوم بتهيئة إعدادات الملحقات وملف الـ settings ليتوافق تلقائياً مع السوفتوير الحالي
+          if [ -d "android" ]; then
             echo "android.defaults.buildfeatures.buildconfig=true" >> android/gradle.properties
+            sed -i '' 's/components.release/components.findByName("release")/g' android/build.gradle 2>/dev/null || sed -i 's/components.release/components.findByName("release")/g' android/build.gradle
           fi
 
           # 7. تشغيل البناء النهائي المستقر والتجميع
