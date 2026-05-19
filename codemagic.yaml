@@ -4,10 +4,15 @@ workflows:
     max_build_duration: 60
     instance_type: mac_mini_m1
 
+    environment:
+      java: 17
+
     scripts:
       - name: Install Dependencies
         script: |
-          rm -rf node_modules .pnpm-store pnpm-lock.yaml
+          rm -rf node_modules
+          rm -rf .pnpm-store
+          rm -rf pnpm-lock.yaml
 
           npm cache clean --force
 
@@ -16,9 +21,12 @@ workflows:
       - name: Build APK
         script: |
           cd android
+
           chmod +x gradlew
 
-          ./gradlew assembleRelease --no-daemon
+          ./gradlew clean
+
+          ./gradlew assembleRelease --stacktrace --no-daemon
 
     artifacts:
-      - android/app/build/outputs/apk/release/*.apk
+      - android/app/build/outputs/**/*.apk
