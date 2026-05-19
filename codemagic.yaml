@@ -4,33 +4,25 @@ workflows:
     max_build_duration: 60
     instance_type: mac_mini_m1
     scripts:
-      - name: Install pnpm and Dependencies
+      - name: Install Dependencies via NPM
         script: |
-          npm install -g pnpm --force
-          rm -rf node_modules .pnpm-store pnpm-lock.yaml
-          pnpm install --no-frozen-lockfile --shamefully-hoist
+          # 1. تنظيف كاش وجذور pnpm تماماً وتطهير المجلد
+          rm -rf node_modules .pnpm-store pnpm-lock.yaml package-lock.json
+          
+          # 2. التثبيت القياسي الصافي باستخدام npm لضمان بقاء الملفات في مكانها الفيزيائي الصحيح
+          npm install --legacy-peer-deps
       - name: Build APK
         script: |
+          # 3. تجهيز مسارات البيئة
           NODE_PATH=$(which node)
           export NODE_EXECUTABLE_PATH=$NODE_PATH
           
           if [ -d "android" ]; then
-            # 1. ترقية إصدار Gradle
+            # 4. ترقية إصدار Gradle ليتوافق مع البيئة الحديثة
             sed -i '' 's/gradle-8.8-all.zip/gradle-8.13-all.zip/g' android/gradle/wrapper/gradle-wrapper.properties 2>/dev/null || sed -i 's/gradle-8.8-all.zip/gradle-8.13-all.zip/g' android/gradle/wrapper/gradle-wrapper.properties
-            
-            # 2. إنشاء ملفات الخصائص لتجنب أخطاء الفقدان السابقة
-            mkdir -p node_modules/react-native/ReactAndroid
-            echo "" > node_modules/react-native/ReactAndroid/gradle.properties
-            mkdir -p android/node_modules/react-native/ReactAndroid 2>/dev/null || true
-            echo "" > android/node_modules/react-native/ReactAndroid/gradle.properties 2>/dev/null || true
-            
-            # 3. الحل النهائي لـ Autolinking: حقن الـ packageName يدوياً داخل كود أداة الربط على السيرفر لتخطي الفحص
-            AUTOLINK_FILE="node_modules/@react-native/gradle-plugin/src/main/kotlin/com/facebook/react/utils/AutolinkingUtils.kt"
-            if [ -f "$AUTOLINK_FILE" ]; then
-              sed -i '' 's/project.android.packageName/if(packageName.isNullOrEmpty()) "com.alwaleed.newapp" else packageName/g' "$AUTOLINK_FILE" 2>/dev/null || sed -i 's/project.android.packageName/"com.alwaleed.newapp"/g' "$AUTOLINK_FILE"
-            fi
           fi
           
+          # 5. تشغيل التجميع الصافي والمباشر
           cd android
           chmod +x gradlew
           ./gradlew assembleRelease --no-daemon -PnodeExecutable=$NODE_PATH
