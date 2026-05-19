@@ -2,9 +2,9 @@ pluginManagement {
     includeBuild("../node_modules/@react-native/gradle-plugin")
 
     repositories {
+        gradlePluginPortal()
         google()
         mavenCentral()
-        gradlePluginPortal()
     }
 }
 
