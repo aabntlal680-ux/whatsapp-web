@@ -6,9 +6,9 @@ workflows:
 
     scripts:
       - name: Install Dependencies
-         script: |
+        script: |
           # تنظيف بقايا pnpm فقط
-           rm -rf node_modules .pnpm-store pnpm-lock.yaml
+          rm -rf node_modules .pnpm-store pnpm-lock.yaml
 
           # تنظيف كاش npm
           npm cache clean --force
@@ -18,7 +18,8 @@ workflows:
 
           # التأكد من وجود React Native Gradle Plugin
           npm install @react-native/gradle-plugin --save-dev --legacy-peer-deps
-     - name: Build APK
+
+      - name: Build APK
         script: |
           NODE_PATH=$(which node)
           export NODE_EXECUTABLE_PATH=$NODE_PATH
@@ -27,5 +28,6 @@ workflows:
           chmod +x gradlew
 
           ./gradlew assembleRelease --no-daemon
+
     artifacts:
       - android/app/build/outputs/apk/release/*.apk
