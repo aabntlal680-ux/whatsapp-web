@@ -4,7 +4,7 @@ pluginManagement {
         mavenCentral()
         gradlePluginPortal()
     }
-    // إجبار Gradle على تضمين الملحق البرمجي لـ React Native من المجلد المحلي مباشرة ليتخطى السطر 10
+    // إجبار Gradle خطياً على قراءة الملحق محلياً من مجلد الحزم لتجاوز السطر 12 نهائياً
     includeBuild(new File(rootDir, "../node_modules/@react-native/gradle-plugin"))
 }
 
@@ -22,7 +22,7 @@ dependencyResolutionManagement {
     }
 }
 
-// استدعاء ملفات الربط التلقائي القياسية لـ Expo و React Native عبر مسارات ثابتة ومباشرة
+// استدعاء ملفات الربط التلقائي القياسية لـ Expo و React Native عبر مسارات ثابتة ومباشرة دون وسيط
 apply from: new File(rootDir, "../node_modules/expo/scripts/autolinking.gradle")
 useExpoModules()
 
