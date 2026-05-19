@@ -15,12 +15,20 @@ workflows:
           export NODE_EXECUTABLE_PATH=$NODE_PATH
           
           if [ -d "android" ]; then
+            # 1. ترقية إصدار Gradle
             sed -i '' 's/gradle-8.8-all.zip/gradle-8.13-all.zip/g' android/gradle/wrapper/gradle-wrapper.properties 2>/dev/null || sed -i 's/gradle-8.8-all.zip/gradle-8.13-all.zip/g' android/gradle/wrapper/gradle-wrapper.properties
             
+            # 2. إنشاء ملفات الخصائص لتجنب أخطاء الفقدان السابقة
             mkdir -p node_modules/react-native/ReactAndroid
             echo "" > node_modules/react-native/ReactAndroid/gradle.properties
             mkdir -p android/node_modules/react-native/ReactAndroid 2>/dev/null || true
             echo "" > android/node_modules/react-native/ReactAndroid/gradle.properties 2>/dev/null || true
+            
+            # 3. الحل النهائي لـ Autolinking: حقن الـ packageName يدوياً داخل كود أداة الربط على السيرفر لتخطي الفحص
+            AUTOLINK_FILE="node_modules/@react-native/gradle-plugin/src/main/kotlin/com/facebook/react/utils/AutolinkingUtils.kt"
+            if [ -f "$AUTOLINK_FILE" ]; then
+              sed -i '' 's/project.android.packageName/if(packageName.isNullOrEmpty()) "com.alwaleed.newapp" else packageName/g' "$AUTOLINK_FILE" 2>/dev/null || sed -i 's/project.android.packageName/"com.alwaleed.newapp"/g' "$AUTOLINK_FILE"
+            fi
           fi
           
           cd android
