@@ -10,23 +10,22 @@ workflows:
           npm install -g pnpm --force
           rm -rf node_modules .pnpm-store pnpm-lock.yaml
           
-          # 2. إنشاء ملف إعدادات صارم لإجبار pnpm على رفع وحقن كافة الـ Plugins تلقائياً (الحل الجذري)
-          echo "shamefully-hoist=true" > .npmrc
-          echo "auto-install-peers=true" >> .npmrc
-          echo "public-hoist-pattern[]=*expo*" >> .npmrc
-          echo "public-hoist-pattern[]=*react-native*" >> .npmrc
-          
-          # 3. التثبيت النظيف بالهيكلية المسطحة الحقيقية التي يطلبها أندرويد
-          pnpm install --no-frozen-lockfile
+          # 2. التثبيت النظيف بالهيكلية المسطحة الحقيقية التي يطلبها أندرويد
+          pnpm install --no-frozen-lockfile --shamefully-hoist
       - name: Build APK
         script: |
-          # 4. تجهيز متغيرات البيئة ومسار نود
+          # 3. تجهيز متغيرات البيئة ومسار نود
           NODE_PATH=$(which node)
           export NODE_EXECUTABLE_PATH=$NODE_PATH
           
-          # 5. تنظيف وإعادة بناء مجلد أندرويد
+          # 4. تنظيف وإعادة بناء مجلد أندرويد
           rm -rf android
           npx expo prebuild --platform android --no-install
+          
+          # 5. التعديل الصارم لحل خطأ السطر 13 وحذف الـ null بالقوة من ملف الإعدادات
+          if [ -f "android/settings.gradle" ]; then
+            sed -i '' "s/includeBuild('.*null')//g" android/settings.gradle 2>/dev/null || sed -i "s/includeBuild('.*null')//g" android/settings.gradle
+          fi
           
           # 6. تشغيل البناء النهائي المستقر والتجميع بالقوة
           cd android
