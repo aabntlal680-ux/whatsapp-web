@@ -10,27 +10,25 @@ workflows:
           npm install -g pnpm --force
           rm -rf node_modules .pnpm-store pnpm-lock.yaml
           
-          # 2. التثبيت النظيف بالهيكلية المسطحة الحقيقية التي يطلبها أندرويد
-          pnpm install --no-frozen-lockfile --shamefully-hoist
+          # 2. إنشاء ملف إعدادات صارم لإجبار pnpm على رفع وحقن كافة الـ Plugins تلقائياً (الحل الجذري)
+          echo "shamefully-hoist=true" > .npmrc
+          echo "auto-install-peers=true" >> .npmrc
+          echo "public-hoist-pattern[]=*expo*" >> .npmrc
+          echo "public-hoist-pattern[]=*react-native*" >> .npmrc
+          
+          # 3. التثبيت النظيف بالهيكلية المسطحة الحقيقية التي يطلبها أندرويد
+          pnpm install --no-frozen-lockfile
       - name: Build APK
         script: |
-          # 3. تجهيز متغيرات البيئة ومسار نود
+          # 4. تجهيز متغيرات البيئة ومسار نود
           NODE_PATH=$(which node)
           export NODE_EXECUTABLE_PATH=$NODE_PATH
           
-          # 4. تنظيف وإعادة بناء مجلد أندرويد
+          # 5. تنظيف وإعادة بناء مجلد أندرويد
           rm -rf android
           npx expo prebuild --platform android --no-install
           
-          # 5. حل مشكلة مسارات pnpm لـ Expo 54 ومنع خطأ expo-constants
-          echo "module.exports = { reactNativePath: './node_modules/react-native' };" > react-native.config.js
-          
-          # 6. التعديل المتوافق مع الماك لإصلاح السطر 85 وحل تعارض ربط الحزم في Gradle 8.8
-          # هذا الأمر يبحث بدقة داخل مجلد الـ pnpm المخفي ويصلح الاستدعاءات برمجياً ليتعرف عليها Gradle
-          find node_modules/.pnpm -name "ExpoModulesCorePlugin.gradle" -exec sed -i '' 's/components.release/components.findByName("release")/g' {} + 2>/dev/null || true
-          find node_modules/.pnpm -name "build.gradle" -path "*/expo-constants/*" -exec sed -i '' 's/id: '"'"'expo-module-gradle-plugin'"'"'/id "expo-module-gradle-plugin" version "1.0.0"/g' {} + 2>/dev/null || true
-
-          # 7. تشغيل البناء النهائي المستقر والتجميع
+          # 6. تشغيل البناء النهائي المستقر والتجميع بالقوة
           cd android
           chmod +x gradlew
           ./gradlew assembleRelease --no-daemon -PnodeExecutable=$NODE_PATH
