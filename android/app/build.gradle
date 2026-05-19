@@ -30,14 +30,16 @@ def rnVersion = getRNVersion()
  * By default you don't need to apply any configuration, just uncomment the lines you need.
  */
 react {
-    // إصلاح سطر تحويل الـ File عبر استخدام مسار ثابت يمنع انهيار السيرفر
-    nodeExecutablePath = file("../node_modules/react-native/index.js")
-    
-    entryFile = file(["node", "-e", "require('expo/scripts/resolveAppEntry')", projectRoot, "android", "absolute"].execute(null, rootDir).text.trim())
-    reactNativeDir = new File(["node", "--print", "require.resolve('react-native/package.json')"].execute(null, rootDir).text.trim()).getParentFile().getAbsoluteFile()
-    hermesCommand = new File(["node", "--print", "require.resolve('react-native/package.json')"].execute(null, rootDir).text.trim()).getParentFile().getAbsolutePath() + "/sdks/hermesc/%OS-BIN%/hermesc"
-    codegenDir = new File(["node", "--print", "require.resolve('@react-native/codegen/package.json', { paths: [require.resolve('react-native/package.json')] })"].execute(null, rootDir).text.trim()).getParentFile().getAbsoluteFile()
+    /* Folders */
+    root = file("../")
+    reactNativeDir = file("../node_modules/react-native")
+    codegenDir = file("../node_modules/@react-native/codegen")
 
+    /* Bundling */
+    // التعديل الصحيح للإصدارات الحديثة لتفادي خطأ السطر 34
+    nodeExecutableAndArgs = ["node"]
+
+    entryFile = file(["node", "-e", "require('expo/scripts/resolveAppEntry')", projectRoot, "android", "absolute"].execute(null, rootDir).text.trim())
     cliFile = new File(["node", "--print", "require.resolve('@expo/cli', { paths: [require.resolve('expo/package.json')] })"].execute(null, rootDir).text.trim())
     bundleCommand = "export:embed"
 
@@ -50,20 +52,15 @@ def enableProguardInReleaseBuilds = (findProperty('android.enableProguardInRelea
 def jscFlavor = 'org.webkit:android-jsc:+'
 
 android {
-    ndkVersion rootProject.ext.ndkVersion
-    buildToolsVersion rootProject.ext.buildToolsVersion
-    
-    // الحل الصارم: تحديد رقم الـ SDK بشكل صريح لتخطي قيود Gradle 8.13
+    // تحديد قيم الـ SDK صراحة وثباتاً لتخطي قيود التحديث
     compileSdk 34
+    buildToolsVersion "34.0.0"
 
     namespace 'com.alwaleed.newapp'
     defaultConfig {
         applicationId 'com.alwaleed.newapp'
-        
-        // استخدام أرقام صريحة ومباشرة هنا لمنع قراءة متغيرات فارغة
         minSdkVersion 24
         targetSdkVersion 34
-        
         versionCode 1
         versionName "1.0.0"
     }
