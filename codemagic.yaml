@@ -6,11 +6,11 @@ workflows:
     scripts:
       - name: Install pnpm and Dependencies
         script: |
-          # 1. تثبيت pnpm بالقوة وتفريغ الكاش تماماً
+          # 1. تثبيت pnpm بالقوة وتفريغ الكاش
           npm install -g pnpm --force
           rm -rf node_modules .pnpm-store pnpm-lock.yaml
           
-          # 2. التثبيت النظيف بالهيكلية المسطحة المستقرة
+          # 2. التثبيت النظيف بالهيكلية المسطحة
           pnpm install --no-frozen-lockfile --shamefully-hoist
       - name: Build APK
         script: |
@@ -18,22 +18,12 @@ workflows:
           NODE_PATH=$(which node)
           export NODE_EXECUTABLE_PATH=$NODE_PATH
           
+          # 4. ترقية Gradle إلى 8.13 المتوافق
           if [ -d "android" ]; then
-            # 4. ترقية إصدار Gradle إلى 8.13 المتوافق
             sed -i '' 's/gradle-8.8-all.zip/gradle-8.13-all.zip/g' android/gradle/wrapper/gradle-wrapper.properties 2>/dev/null || sed -i 's/gradle-8.8-all.zip/gradle-8.13-all.zip/g' android/gradle/wrapper/gradle-wrapper.properties
-            
-            # 5. حل مشكلة compileSdk: حقن التعريف القياسي في مقدمة أندرويد ليتخطى الفحص
-            sed -i '' '/android {/a\
-                compileSdk 34\
-            ' android/app/build.gradle 2>/dev/null || sed -i '/android {/a\
-                compileSdk 34\
-            ' android/app/build.gradle
-            
-            # 6. حل مشكلة Cannot convert '' to File: إجبار الملف على قراءة مسار النود الفعلي للسيرفر
-            sed -i '' "s|nodeExecutablePath.*|= file('$NODE_PATH')|g" android/app/build.gradle 2>/dev/null || sed -i "s|nodeExecutablePath.*|= file('$NODE_PATH')|g" android/app/build.gradle
           fi
           
-          # 7. تشغيل البناء النهائي والتجميع بالقوة
+          # 5. تجميع التطبيق مباشرة بناءً على الملف المصلح يدوياً
           cd android
           chmod +x gradlew
           ./gradlew assembleRelease --no-daemon -PnodeExecutable=$NODE_PATH
