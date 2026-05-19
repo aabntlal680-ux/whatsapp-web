@@ -5,7 +5,11 @@ pluginManagement {
         mavenCentral()
     }
 
-    includeBuild("../node_modules/@react-native/gradle-plugin")
+    def reactNativeGradlePlugin = file("../node_modules/@react-native/gradle-plugin")
+
+    if (reactNativeGradlePlugin.exists()) {
+        includeBuild(reactNativeGradlePlugin)
+    }
 }
 
 plugins {
