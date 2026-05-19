@@ -1,23 +1,35 @@
 pluginManagement {
-    includeBuild(new File(["node", "--print", "require.resolve('@react-native/gradle-plugin/package.json', { paths: [rootDir] })"].execute(null, rootDir).text.trim()).getParentFile())
+    repositories {
+        gradlePluginPortal()
+        google()
+        mavenCentral()
+    }
+
+    includeBuild("../node_modules/@react-native/gradle-plugin")
 }
 
 plugins {
     id("com.facebook.react.settings")
 }
 
-rootProject.name = 'Alwaleed Hub'
+extensions.configure(com.facebook.react.ReactSettingsExtension) { ex ->
+    ex.autolinkLibrariesFromCommand()
+}
+
+rootProject.name = "Alwaleed Hub"
 
 dependencyResolutionManagement {
-    versionCatalogs {
-        reactAndroidLibs {
-            from(files(new File(["node", "--print", "require.resolve('react-native/package.json', { paths: [rootDir] })"].execute(null, rootDir).text.trim(), "../gradle/libs.versions.toml")))
-        }
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+
+    repositories {
+        google()
+        mavenCentral()
+        maven { url 'https://www.jitpack.io' }
     }
 }
 
-apply from: new File(["node", "--print", "require.resolve('expo/package.json', { paths: [rootDir] })"].execute(null, rootDir).text.trim(), "../scripts/autolinking.gradle");
+apply from: file("../node_modules/expo/scripts/autolinking.gradle")
+
 useExpoModules()
 
-include ':app'
-includeBuild(new File(["node", "--print", "require.resolve('@react-native/gradle-plugin/package.json', { paths: [rootDir] })"].execute(null, rootDir).text.trim()).getParentFile())
+include(":app")
