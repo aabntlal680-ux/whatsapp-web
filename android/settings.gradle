@@ -27,6 +27,7 @@ def getRNMinorVersion() {
 
 if (getRNMinorVersion() >= 75) {
     extensions.configure(com.facebook.react.ReactSettingsExtension) { ex ->
+        // استخدام مسار الاستدعاء المباشر لتوليد ملفات التهيئة بشكل سليم
         def command = [
             'node',
             '--no-warnings',
@@ -51,6 +52,7 @@ dependencyResolutionManagement {
     }
 }
 
+// تشغيل ربط موديولات Expo القياسية
 apply from: new File(["node", "--print", "require.resolve('expo/package.json')"].execute(null, rootDir).text.trim(), "../scripts/autolinking.gradle");
 useExpoModules()
 
