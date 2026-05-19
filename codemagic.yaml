@@ -6,11 +6,11 @@ workflows:
     scripts:
       - name: Install pnpm and Dependencies
         script: |
-          # 1. تثبيت pnpm بالقوة وتفريغ الكاش تماماً
+          # 1. تثبيت pnpm وتفريغ الكاش لضمان معالجة الحزم المسطحة
           npm install -g pnpm --force
           rm -rf node_modules .pnpm-store pnpm-lock.yaml
           
-          # 2. التثبيت النظيف بالهيكلية المسطحة
+          # 2. التثبيت النظيف بالهيكلية المسطحة الحقيقية التي يطلبها أندرويد
           pnpm install --no-frozen-lockfile --shamefully-hoist
       - name: Build APK
         script: |
@@ -18,7 +18,7 @@ workflows:
           NODE_PATH=$(which node)
           export NODE_EXECUTABLE_PATH=$NODE_PATH
           
-          # 4. تشغيل البناء النهائي المستقر والتجميع مباشرة بناءً على التعديلات
+          # 4. تشغيل البناء النهائي المستقر والتجميع مباشرة بناءً على الملفات المصلحة يدوياً
           cd android
           chmod +x gradlew
           ./gradlew assembleRelease --no-daemon -PnodeExecutable=$NODE_PATH
