@@ -3,28 +3,22 @@ workflows:
     name: Android Build
     max_build_duration: 60
     instance_type: mac_mini_m1
+
     scripts:
-      - name: Install Dependencies via NPM
+      - name: Install Dependencies
         script: |
-          # 1. تنظيف كاش وجذور pnpm تماماً وتطهير المجلد
-          rm -rf node_modules .pnpm-store pnpm-lock.yaml package-lock.json
-          
-          # 2. التثبيت القياسي الصافي باستخدام npm لضمان بقاء الملفات في مكانها الفيزيائي الصحيح
-          npm install --legacy-peer-deps
+          rm -rf node_modules .pnpm-store pnpm-lock.yaml
+
+          npm ci --legacy-peer-deps
+
       - name: Build APK
         script: |
-          # 3. تجهيز مسارات البيئة
           NODE_PATH=$(which node)
           export NODE_EXECUTABLE_PATH=$NODE_PATH
-          
-          if [ -d "android" ]; then
-            # 4. ترقية إصدار Gradle ليتوافق مع البيئة الحديثة
-            sed -i '' 's/gradle-8.8-all.zip/gradle-8.13-all.zip/g' android/gradle/wrapper/gradle-wrapper.properties 2>/dev/null || sed -i 's/gradle-8.8-all.zip/gradle-8.13-all.zip/g' android/gradle/wrapper/gradle-wrapper.properties
-          fi
-          
-          # 5. تشغيل التجميع الصافي والمباشر
+
           cd android
           chmod +x gradlew
+
           ./gradlew assembleRelease --no-daemon -PnodeExecutable=$NODE_PATH
 
     artifacts:
