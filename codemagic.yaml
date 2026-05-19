@@ -6,32 +6,23 @@ workflows:
     scripts:
       - name: Install pnpm and Dependencies
         script: |
-          # 1. تثبيت pnpm وتفريغ الكاش بالكامل
           npm install -g pnpm --force
           rm -rf node_modules .pnpm-store pnpm-lock.yaml
-          
-          # 2. التثبيت بالهيكلية الصارمة والمسطحة تماماً (لمنع عزل ملفات ReactAndroid)
           pnpm install --no-frozen-lockfile --shamefully-hoist
       - name: Build APK
         script: |
-          # 3. تجهيز مسارات البيئة ونود
           NODE_PATH=$(which node)
           export NODE_EXECUTABLE_PATH=$NODE_PATH
           
           if [ -d "android" ]; then
-            # 4. ترقية إصدار Gradle ليتوافق مع أندرويد
             sed -i '' 's/gradle-8.8-all.zip/gradle-8.13-all.zip/g' android/gradle/wrapper/gradle-wrapper.properties 2>/dev/null || sed -i 's/gradle-8.8-all.zip/gradle-8.13-all.zip/g' android/gradle/wrapper/gradle-wrapper.properties
             
-            # 5. الحل القاطع: نسخ فيزيائي مباشر للملف المفقود إلى المسار الحقيقي المتوقع
             mkdir -p node_modules/react-native/ReactAndroid
             echo "" > node_modules/react-native/ReactAndroid/gradle.properties
-            
-            # تأكيد نسخ الملف بداخل مجلد الأندرويد نفسه كإجراء احترازي
             mkdir -p android/node_modules/react-native/ReactAndroid 2>/dev/null || true
             echo "" > android/node_modules/react-native/ReactAndroid/gradle.properties 2>/dev/null || true
           fi
           
-          # 6. تشغيل التجميع النهائي المستقر
           cd android
           chmod +x gradlew
           ./gradlew assembleRelease --no-daemon -PnodeExecutable=$NODE_PATH
