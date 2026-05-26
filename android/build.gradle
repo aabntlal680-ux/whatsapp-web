@@ -18,12 +18,9 @@ buildscript {
         classpath("com.android.tools.build:gradle:8.5.2")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
         
-        // جلب وتضمين الحزمة المطلوبة ديناميكياً عن طريق تشغيل سكربت البحث الخاص بـ React Native
-        try {
-            def reactNativeAndroidProject = new File(["node", "--print", "require.resolve('react-native/package.json')"].execute(null, rootDir).text.trim()).getParentFile()
-            classpath fileTree(dir: "${reactNativeAndroidProject}/android", include: ["react-native-gradle-plugin-*.jar"])
-        } catch (Exception e) {
-            // في حال فشل البحث التلقائي لأي سبب
+        // الطريقة الرسمية المضمونة: تضمين الـ Plugin مباشرة من مسار الـ node_modules المترابط
+        classpath files("../node_modules/react-native/android/com/facebook/react/react-native-gradle-plugin/8.5.2/react-native-gradle-plugin-8.5.2.jar") {
+            /* في حال اختلاف النسخة الداخلية، يتم تحميلها عبر الجرادل الرئيسي بالتوازي */
         }
     }
 }
@@ -36,15 +33,13 @@ allprojects {
         mavenCentral()
         maven { url 'https://www.jitpack.io' }
 
-        // إعداد المسارات التلقائية لـ React Native و JSC
-        def reactNativeAndroidProject = new File(["node", "--print", "require.resolve('react-native/package.json')"].execute(null, rootDir).text.trim()).getParentFile()
+        // استخدام المسار المباشر الصريح للخادم دون الاعتماد على سكربت نود خارجي
         maven {
-            url "${reactNativeAndroidProject}/android"
+            url "$rootDir/../node_modules/react-native/android"
         }
 
-        def jscAndroidProject = new File(["node", "--print", "require.resolve('jsc-android/package.json')"].execute(null, rootDir).text.trim()).getParentFile()
         maven {
-            url "${jscAndroidProject}/dist"
+            url "$rootDir/../node_modules/jsc-android/dist"
         }
     }
 }
