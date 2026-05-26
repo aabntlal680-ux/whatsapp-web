@@ -17,11 +17,6 @@ buildscript {
     dependencies {
         classpath("com.android.tools.build:gradle:8.5.2")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
-        
-        // الطريقة الرسمية المضمونة: تضمين الـ Plugin مباشرة من مسار الـ node_modules المترابط
-        classpath files("../node_modules/react-native/android/com/facebook/react/react-native-gradle-plugin/8.5.2/react-native-gradle-plugin-8.5.2.jar") {
-            /* في حال اختلاف النسخة الداخلية، يتم تحميلها عبر الجرادل الرئيسي بالتوازي */
-        }
     }
 }
 
@@ -33,7 +28,7 @@ allprojects {
         mavenCentral()
         maven { url 'https://www.jitpack.io' }
 
-        // استخدام المسار المباشر الصريح للخادم دون الاعتماد على سكربت نود خارجي
+        // توجيه صريح لـ Gradle للعثور على حزم react-native و jsc محلياً
         maven {
             url "$rootDir/../node_modules/react-native/android"
         }
