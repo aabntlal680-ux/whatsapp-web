@@ -1,48 +1,20 @@
 workflows:
   android-workflow:
     name: Android Build
-    max_build_duration: 60
-    instance_type: mac_mini_m1
+
+    environment:
+      java: 17
+
     scripts:
-      - name: Install pnpm and Dependencies
+      - name: Install Dependencies
         script: |
-          # 1. تثبيت pnpm بالقوة وتفريغ الكاش التالف تماماً لمنع خطأ الـ HOIST DIFF
-          npm install -g pnpm --force
-          rm -rf node_modules .pnpm-store pnpm-lock.yaml
-          
-          # 2. التثبيت النظيف بالهيكلية المسطحة الحقيقية التي يطلبها أندرويد
-          pnpm install --no-frozen-lockfile --shamefully-hoist
+          npm install
+
       - name: Build APK
         script: |
-          # 3. تجهيز متغيرات البيئة ومسار نود
-          NODE_PATH=$(which node)
-          export NODE_EXECUTABLE_PATH=$NODE_PATH
-          
-          # 4. تنظيف وإعادة بناء مجلد أندرويد
-          rm -rf android
-          npx expo prebuild --platform android --no-install
-          
-          # 5. حل جذري ونهائي لربط الملحقات والتوافق مع السطر 85 في Gradle 8.8
-          # نقوم بحقن مستودعات ومسارات الحزم المسطحة مباشرة داخل ملفات أندرويد ليتخطى Gradle الفشل تلقائياً
-          if [ -d "android" ]; then
-            # إجبار إعدادات البناء على تفعيل خاصية الـ BuildConfig المطلوبة للحزم
-            echo "android.defaults.buildfeatures.buildconfig=true" >> android/gradle.properties
-            
-            # حقن مسار ملحق expo-module-gradle-plugin يدوياً داخل ملف الإعدادات لحل مشكلة الخطأ الأول
-            sed -i '' '/pluginManagement {/a\
-            plugins { id "expo-module-gradle-plugin" version "1.0.0" apply false }\
-            ' android/settings.gradle 2>/dev/null || sed -i '/pluginManagement {/a\
-            plugins { id "expo-module-gradle-plugin" version "1.0.0" apply false }\
-            ' android/settings.gradle
-
-            # حل مشكلة السطر 85 عن طريق استبدال صيغة تفقد الـ release بصيغة برمجية مرنة ومقبولة في Gradle 8.8
-            find node_modules/ -name "ExpoModulesCorePlugin.gradle" -exec sed -i '' 's/components.release/components.findByName("release")/g' {} + 2>/dev/null || find node_modules/ -name "ExpoModulesCorePlugin.gradle" -exec sed -i 's/components.release/components.findByName("release")/g' {} + 2>/dev/null
-          fi
-          
-          # 6. تشغيل البناء النهائي المستقر والتجميع بالقوة
           cd android
           chmod +x gradlew
-          ./gradlew assembleRelease --no-daemon -PnodeExecutable=$NODE_PATH
+          ./gradlew assembleRelease --no-daemon
 
     artifacts:
-      - android/app/build/outputs/apk/release/*.apk
+      - android/app/build/outputs/**/*.apk
