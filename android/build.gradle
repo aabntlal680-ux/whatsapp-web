@@ -12,6 +12,10 @@ buildscript {
     repositories {
         google()
         mavenCentral()
+        // إضافة هذا المسار هنا لتمكين الـ buildscript من العثور على حزم الـ react-native-gradle-plugin أثناء إعداد المشروع
+        maven {
+            url("$rootDir/../node_modules/react-native/android")
+        }
     }
 
     dependencies {
