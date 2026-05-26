@@ -11,9 +11,7 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.alwaleed.newapp"
@@ -21,6 +19,8 @@
     "android": {
       "package": "com.alwaleed.newapp",
       "versionCode": 1,
+      "usesCleartextTraffic": true,
+      "permissions": ["INTERNET", "ACCESS_NETWORK_STATE"],
       "adaptiveIcon": {
         "foregroundImage": "./assets/whatsapp-icon.png",
         "backgroundColor": "#ffffff"
