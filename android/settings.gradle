@@ -1,26 +1,8 @@
-pluginManagement {
-    apply from: new File(["node", "--print", "require.resolve('expo/package.json')"].execute(null, rootDir).text.trim(), "../scripts/autolinking.gradle");
-useExpoModules()
-}
-
-plugins {
-    id("com.facebook.react.settings")
-}
-
 rootProject.name = 'Alwaleed Hub'
 
-dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-
-    repositories {
-        google()
-        mavenCentral()
-        maven { url 'https://www.jitpack.io' }
-    }
-}
-
-apply from: file("../node_modules/expo/scripts/autolinking.gradle")
-
+// استدعاء سكربت الربط التلقائي لـ Expo بأمان
+apply from: new File(["node", "--print", "require.resolve('expo/package.json')"].execute(null, rootDir).text.trim(), "../scripts/autolinking.gradle")
 useExpoModules()
 
 include ':app'
+includeBuild('../node_modules/@react-native/gradle-plugin')
